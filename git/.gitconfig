@@ -18,8 +18,8 @@
 #git config --global core.excludesfile ${HOME}/.gitignore_global
 
 [user]
-  name = Tamas Marton
-  email = hello@tamasmarton.com
+	name = Tamas Marton
+	email = hello@tamasmarton.com
 
 [core]
   excludesfile = ~/.gitignore_global
