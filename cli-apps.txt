@@ -1,0 +1,17 @@
+wget
+tldr
+lazygit
+nvm
+eza
+bat
+tmux
+stow
+neovim
+tlrc
+tree-sitter
+zoxide
+ripgrep
+fzf
+fd
+zsh-autosuggestions
+zsh-syntax-highlighting

@@ -1,0 +1,8 @@
+spotify
+vlc
+iterm2
+visual-studio-code
+wezterm@nightly
+stats
+itsycal
+hiddenbar
