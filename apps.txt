@@ -1,3 +1,4 @@
+raycast
 spotify
 vlc
 iterm2
@@ -6,3 +7,4 @@ wezterm@nightly
 stats
 itsycal
 hiddenbar
+nikitabobko/tap/aerospace

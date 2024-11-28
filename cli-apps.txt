@@ -4,6 +4,7 @@ lazygit
 nvm
 eza
 bat
+btop
 tmux
 stow
 neovim
@@ -13,5 +14,12 @@ zoxide
 ripgrep
 fzf
 fd
+yazi
+kondo
+delta
+difftastic
+rnr
+mprocs
 zsh-autosuggestions
 zsh-syntax-highlighting
+thefuck
