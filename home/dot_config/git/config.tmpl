@@ -1,0 +1,146 @@
+# ~/.config/git/config — generálva: home/dot_config/git/config.tmpl
+# Gépspecifikus felülírás (nem verziózott): ~/.config/git/local
+{{- $t := .theme }}
+{{- $hasDelta := or .gui (lookPath "delta") }}
+{{- $sshKey := joinPath .chezmoi.homeDir ".ssh/id_ed25519.pub" }}
+
+[user]
+	name = {{ .name }}
+{{- if .email }}
+	email = {{ .email }}
+{{- end }}
+{{- if and .signCommits (stat $sshKey) }}
+	signingkey = {{ $sshKey }}
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+
+[commit]
+	gpgsign = true
+
+[tag]
+	gpgsign = true
+{{- end }}
+
+[init]
+	defaultBranch = main
+
+[core]
+	autocrlf = input
+{{- if $hasDelta }}
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	dark = true
+	line-numbers = true
+	syntax-theme = ansi
+	file-style = "{{ $t.accent }}" bold
+	file-decoration-style = "{{ $t.bg_highlight }}" ul
+	hunk-header-style = file line-number syntax
+	hunk-header-decoration-style = "{{ $t.bg_highlight }}" box
+	line-numbers-left-style = "{{ $t.muted }}"
+	line-numbers-right-style = "{{ $t.muted }}"
+	line-numbers-minus-style = "{{ $t.ansi.red }}"
+	line-numbers-plus-style = "{{ $t.ansi.green }}"
+	line-numbers-zero-style = "{{ $t.muted }}"
+	minus-style = syntax "#2A0F14"
+	minus-emph-style = syntax "#5A1A22"
+	plus-style = syntax "#062A20"
+	plus-emph-style = syntax "#0B4A35"
+	blame-palette = "{{ $t.bg }} {{ $t.bg_alt }}"
+{{- end }}
+
+[column]
+	ui = auto
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = version:refname
+
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
+
+[merge]
+	conflictstyle = zdiff3
+
+[pull]
+	rebase = true
+
+[push]
+	default = simple
+	autoSetupRemote = true
+	followTags = true
+
+[fetch]
+	prune = true
+	pruneTags = true
+
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
+
+[rerere]
+	enabled = true
+	autoupdate = true
+
+[commit]
+	verbose = true
+
+[help]
+	autocorrect = prompt
+
+[format]
+	pretty = format:%C(yellow)%h %C(blue)%>(12)%ad %C(green)%<(7)%aN%C(auto)%d %C(reset)%s
+
+[log]
+	date = relative
+
+[alias]
+	a = add
+	aa = add --all
+	amend = commit --amend
+	b = branch
+	bb = branch -a
+	bd = branch -d
+	cm = commit -m
+	co = checkout
+	sw = switch
+	d = diff
+	sd = diff --staged
+	ec = config --global -e
+	go = "!f() { git switch \"$1\" 2>/dev/null || git switch -c \"$1\"; }; f"
+	l = log --graph -15
+	ll = log --graph
+	last = log -1 HEAD --stat
+	p = push
+	pf = push --force-with-lease
+	remotes = remote -v
+	s = status -sb
+	sh = show
+	undo = reset --soft HEAD~1
+	unstage = restore --staged
+	wip = "!git add -A && git commit -m 'WIP' --no-verify"
+{{- if lookPath "git-lfs" }}
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+{{- end }}
+
+[include]
+	path = ~/.config/git/local

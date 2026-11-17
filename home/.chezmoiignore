@@ -7,3 +7,11 @@
 .config/wezterm
 .config/ghostty
 {{ end }}
+
+{{ if not .isWork }}
+.config/zsh/work.zsh
+{{ end }}
+
+# Gépspecifikus, nem verziózott fájlok — a chezmoi soha ne nyúljon hozzájuk
+.config/zsh/local.zsh
+.config/git/local

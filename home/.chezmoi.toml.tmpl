@@ -5,6 +5,7 @@
   Nem interaktív futásnál (devcontainer, CI) környezeti változókból jön:
     DOTFILES_PROFILE = personal | work   (alap: personal)
     DOTFILES_NAME, DOTFILES_EMAIL
+    DOTFILES_SIGN = true | false        (alap: false)
 */ -}}
 
 {{- $interactive := stdinIsATTY -}}
@@ -18,15 +19,18 @@
 {{- $profile := env "DOTFILES_PROFILE" | default "personal" -}}
 {{- $name := env "DOTFILES_NAME" | default "Tamas Marton" -}}
 {{- $email := env "DOTFILES_EMAIL" | default "" -}}
+{{- $signCommits := eq (env "DOTFILES_SIGN" | default "false") "true" -}}
 
 {{- if $interactive -}}
 {{-   $profile = promptChoiceOnce . "profile" "Gép profil" (list "personal" "work") $profile -}}
 {{-   $name = promptStringOnce . "name" "Git név" $name -}}
 {{-   $email = promptStringOnce . "email" "Git email" $email -}}
+{{-   $signCommits = promptBoolOnce . "signCommits" "Commitok aláírása SSH kulccsal (~/.ssh/id_ed25519.pub)" $signCommits -}}
 {{- else -}}
 {{-   $profile = get . "profile" | default $profile -}}
 {{-   $name = get . "name" | default $name -}}
 {{-   $email = get . "email" | default $email -}}
+{{-   if hasKey . "signCommits" -}}{{ $signCommits = .signCommits }}{{- end -}}
 {{- end -}}
 
 {{- $isMac := eq .chezmoi.os "darwin" -}}
@@ -38,6 +42,7 @@ sourceDir = {{ .chezmoi.workingTree | quote }}
     profile = {{ $profile | quote }}
     name = {{ $name | quote }}
     email = {{ $email | quote }}
+    signCommits = {{ $signCommits }}
     isWork = {{ eq $profile "work" }}
     isPersonal = {{ eq $profile "personal" }}
     isContainer = {{ $isContainer }}

@@ -1,0 +1,28 @@
+# mise — globális runtime verziók (~/.config/mise/config.toml)
+# Projektenként felülírható: `mise use node@20` → mise.toml a projektben.
+# Telepítés / frissítés: mise install  ·  mise upgrade  ·  mise ls
+
+[tools]
+node = "lts"
+pnpm = "latest"
+go = "latest"
+java = "temurin-25"            # LTS; projektenként: mise use java@temurin-21
+# rust = "stable"              # később
+{{- if .isContainer }}
+
+# Konténerben nincs Homebrew, ezért a CLI eszközök is innen jönnek
+starship = "latest"
+fzf = "latest"
+zoxide = "latest"
+eza = "latest"
+bat = "latest"
+fd = "latest"
+ripgrep = "latest"
+delta = "latest"
+lazygit = "latest"
+neovim = "latest"
+{{- end }}
+
+[settings]
+# .nvmrc / .node-version / .java-version fájlokat is figyelembe veszi
+idiomatic_version_file_enable_tools = ["node", "java"]

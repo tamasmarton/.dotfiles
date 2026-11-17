@@ -1,0 +1,11 @@
+# Külső forrásból letöltött dolgok (git repók), hetente frissülnek a `chezmoi apply`-jal.
+
+# zsh pluginkezelő — git repóból, így Macen és devcontainerben is ugyanúgy működik
+[".local/share/antidote"]
+    type = "git-repo"
+    url = "https://github.com/mattmc3/antidote.git"
+    refreshPeriod = "168h"
+    [".local/share/antidote".clone]
+        args = ["--depth", "1"]
+    [".local/share/antidote".pull]
+        args = ["--ff-only"]

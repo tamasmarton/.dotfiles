@@ -1,0 +1,4 @@
+{{- $sshKey := joinPath .chezmoi.homeDir ".ssh/id_ed25519.pub" -}}
+{{- if and .signCommits .email (stat $sshKey) -}}
+{{ .email }} {{ include $sshKey | trim }}
+{{ end -}}

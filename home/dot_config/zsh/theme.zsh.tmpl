@@ -1,0 +1,27 @@
+# glacier-night színek a shell eszközöknek — generálva: .chezmoidata/theme.toml
+{{- $t := .theme }}
+
+# zsh-autosuggestions
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg={{ $t.muted }}"
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# fzf
+export FZF_DEFAULT_OPTS="\
+--height=50% --layout=reverse --border=rounded --info=inline-right \
+--prompt='❯ ' --pointer='▌' --marker='▏' \
+--color=fg:{{ $t.fg }},bg:-1,hl:{{ $t.accent }} \
+--color=fg+:{{ $t.fg_bright }},bg+:{{ $t.bg_highlight }},hl+:{{ $t.accent }} \
+--color=info:{{ $t.muted }},prompt:{{ $t.accent }},pointer:{{ $t.cursor }} \
+--color=marker:{{ $t.ansi.yellow }},spinner:{{ $t.accent }},header:{{ $t.ansi.cyan }} \
+--color=border:{{ $t.border }},gutter:-1"
+
+if (( $+commands[fd] )); then
+  export FZF_DEFAULT_COMMAND='fd --hidden --strip-cwd-prefix --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fd --type=d --hidden --strip-cwd-prefix --exclude .git'
+fi
+export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always --line-range :300 {} 2>/dev/null || eza -1 --color=always --icons=always {}'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --color=always --icons=always {}'"
+
+# fzf-tab ugyanazokkal a színekkel
+zstyle ':fzf-tab:*' use-fzf-default-opts yes

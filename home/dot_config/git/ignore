@@ -1,0 +1,32 @@
+# Globális gitignore — ~/.config/git/ignore
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Szerkesztők
+*.swp
+*~
+.idea/
+*.iml
+.project
+
+# Helyi, gépspecifikus configok
+mise.local.toml
+.mise.local.toml
+.envrc.local
+
+# Claude Code helyi fájlok
+**/.claude/.cc-writes/
+**/.claude/settings.local.json
+
+# Node
+node_modules/

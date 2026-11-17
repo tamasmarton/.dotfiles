@@ -1,0 +1,12 @@
+# atuin — kereshető shell history (Ctrl-R). A ↑ nyíl marad a sima history-substring-search.
+# Régi history importálása egyszer: atuin import auto
+
+auto_sync = false          # csak helyi; szinkronhoz: atuin register / login
+update_check = false
+search_mode = "fuzzy"
+filter_mode = "global"
+style = "compact"
+inline_height = 20
+show_preview = true
+enter_accept = false       # Enter csak beírja a parancsot, nem futtatja
+secrets_filter = true

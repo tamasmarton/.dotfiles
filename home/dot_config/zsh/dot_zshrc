@@ -1,0 +1,90 @@
+# ~/.config/zsh/.zshrc — interaktív zsh
+# Gépspecifikus kiegészítés (nem verziózott): ~/.config/zsh/local.zsh
+
+# ── PATH ────────────────────────────────────────────────────────────────
+if [[ -z "$HOMEBREW_PREFIX" ]]; then
+  for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+    [[ -x $_brew ]] && eval "$($_brew shellenv)" && break
+  done
+  unset _brew
+fi
+
+typeset -U path fpath
+path=("$HOME/.local/bin" $path "$HOME/.docker/bin"(N))
+fpath=(
+  ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/share/zsh/site-functions}
+  "$HOME/.docker/completions"(N)
+  $fpath
+)
+
+# ── Opciók ──────────────────────────────────────────────────────────────
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT
+setopt INTERACTIVE_COMMENTS NO_BEEP NO_FLOW_CONTROL
+
+# ── History ─────────────────────────────────────────────────────────────
+HISTFILE="$XDG_STATE_HOME/zsh/history"
+[[ -d ${HISTFILE:h} ]] || mkdir -p ${HISTFILE:h}
+HISTSIZE=100000
+SAVEHIST=100000
+setopt EXTENDED_HISTORY SHARE_HISTORY HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS HIST_VERIFY HIST_EXPIRE_DUPS_FIRST
+
+# ── Completion stílus (a compinit a pluginok között fut) ────────────────
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' menu no
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
+zstyle ':fzf-tab:*' switch-group '<' '>'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons=always $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -1 --color=always --icons=always $realpath'
+
+# ── Pluginok (antidote, statikus cache) ─────────────────────────────────
+() {
+  local antidote_dir="$XDG_DATA_HOME/antidote"
+  local bundle_txt="$ZDOTDIR/.zsh_plugins.txt"
+  local bundle_zsh="$XDG_CACHE_HOME/zsh/plugins.zsh"
+  [[ -d $antidote_dir ]] || return
+
+  fpath=("$antidote_dir/functions" $fpath)
+  autoload -Uz antidote
+  if [[ ! $bundle_zsh -nt $bundle_txt ]]; then
+    mkdir -p ${bundle_zsh:h}
+    # Csak sikeres bundle után írjuk a cache-t, különben egy offline indulás
+    # tartósan plugin nélküli shellt hagyna maga után.
+    if antidote bundle <$bundle_txt >|$bundle_zsh.tmp 2>/dev/null \
+        && ! grep -q 'antidote: unexpected' $bundle_zsh.tmp; then
+      mv -f $bundle_zsh.tmp $bundle_zsh
+    else
+      rm -f $bundle_zsh.tmp
+      print -P "%F{yellow}antidote: a pluginok letöltése nem sikerült, a következő shellben újrapróbálja.%f" >&2
+    fi
+  fi
+  [[ -r $bundle_zsh ]] && source $bundle_zsh
+}
+
+# ── Billentyűk ──────────────────────────────────────────────────────────
+bindkey -e
+if (( $+widgets[history-substring-search-up] )); then
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+  bindkey '^P' history-substring-search-up
+  bindkey '^N' history-substring-search-down
+fi
+autoload -Uz edit-command-line && zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+
+# ── Eszközök ────────────────────────────────────────────────────────────
+(( $+commands[mise] ))     && eval "$(mise activate zsh)"
+(( $+commands[zoxide] ))   && eval "$(zoxide init zsh --cmd cd)"
+(( $+commands[fzf] ))      && source <(fzf --zsh)
+(( $+commands[atuin] ))    && eval "$(atuin init zsh --disable-up-arrow)"   # Ctrl-R
+(( $+commands[starship] )) && eval "$(starship init zsh)"
+
+# ── Saját fájlok ────────────────────────────────────────────────────────
+for _f in "$ZDOTDIR"/{theme,aliases,functions,work,local}.zsh(N); do
+  source "$_f"
+done
+unset _f
