@@ -1,0 +1,52 @@
+{{- /*
+  Gép profil. `chezmoi init` egyszer kérdez, utána a ~/.config/chezmoi/chezmoi.toml-ban marad.
+  Újrakérdezés: chezmoi init --data=false
+
+  Nem interaktív futásnál (devcontainer, CI) környezeti változókból jön:
+    DOTFILES_PROFILE = personal | work   (alap: personal)
+    DOTFILES_NAME, DOTFILES_EMAIL
+*/ -}}
+
+{{- $interactive := stdinIsATTY -}}
+
+{{- /* Konténer felismerése: VS Code devcontainer, Codespaces, Docker, Podman */ -}}
+{{- $isContainer := false -}}
+{{- if or (env "REMOTE_CONTAINERS") (env "CODESPACES") (env "DEVCONTAINER") (stat "/.dockerenv") (stat "/run/.containerenv") -}}
+{{-   $isContainer = true -}}
+{{- end -}}
+
+{{- $profile := env "DOTFILES_PROFILE" | default "personal" -}}
+{{- $name := env "DOTFILES_NAME" | default "Tamas Marton" -}}
+{{- $email := env "DOTFILES_EMAIL" | default "" -}}
+
+{{- if $interactive -}}
+{{-   $profile = promptChoiceOnce . "profile" "Gép profil" (list "personal" "work") $profile -}}
+{{-   $name = promptStringOnce . "name" "Git név" $name -}}
+{{-   $email = promptStringOnce . "email" "Git email" $email -}}
+{{- else -}}
+{{-   $profile = get . "profile" | default $profile -}}
+{{-   $name = get . "name" | default $name -}}
+{{-   $email = get . "email" | default $email -}}
+{{- end -}}
+
+{{- $isMac := eq .chezmoi.os "darwin" -}}
+
+# Generálta: home/.chezmoi.toml.tmpl — ne kézzel szerkeszd, hanem `chezmoi init`-tel.
+sourceDir = {{ .chezmoi.workingTree | quote }}
+
+[data]
+    profile = {{ $profile | quote }}
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    isWork = {{ eq $profile "work" }}
+    isPersonal = {{ eq $profile "personal" }}
+    isContainer = {{ $isContainer }}
+    isMac = {{ $isMac }}
+    # GUI appok (WezTerm, fontok, casks) csak valódi Macen
+    gui = {{ and $isMac (not $isContainer) }}
+
+[edit]
+    command = "nvim"
+
+[diff]
+    exclude = ["scripts"]

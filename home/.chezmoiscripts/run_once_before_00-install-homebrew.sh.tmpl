@@ -1,0 +1,12 @@
+{{- if .gui -}}
+#!/bin/bash
+# Új Macen telepíti a Homebrew-t (egyszer fut le gépenként).
+set -euo pipefail
+
+if command -v brew >/dev/null 2>&1 || [[ -x /opt/homebrew/bin/brew ]]; then
+  exit 0
+fi
+
+echo "==> Homebrew telepítése…"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+{{ end -}}

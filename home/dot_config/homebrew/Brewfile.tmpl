@@ -1,0 +1,69 @@
+# Homebrew csomagok — a chezmoi generálja: home/dot_config/homebrew/Brewfile.tmpl
+# Profil: {{ .profile }}
+#
+# Kezelés:  brewfile install | upgrade | check | cleanup | edit
+# Változás után a `chezmoi apply` automatikusan lefuttatja a `brewfile install`-t.
+#
+# Runtime-ok (node, go, java, rust) NEM innen jönnek, hanem a mise-ből.
+
+# ── Alap ────────────────────────────────────────────────────────────────
+brew "git"
+brew "gh"
+brew "chezmoi"
+brew "mise"                     # node / go / java / rust verziókezelő (nvm helyett)
+brew "wget"
+brew "coreutils"
+brew "gnu-sed"
+brew "jq"
+brew "yq"
+
+# ── Shell ───────────────────────────────────────────────────────────────
+brew "starship"                 # prompt
+brew "antidote"                 # zsh pluginkezelő
+brew "fzf"
+brew "zoxide"                   # okos cd
+brew "eza"                      # ls
+brew "bat"                      # cat
+brew "fd"                       # find
+brew "ripgrep"                  # grep
+brew "tlrc"                     # tldr
+brew "btop"
+brew "atuin"                    # kereshető shell history
+
+# ── Terminál workflow ───────────────────────────────────────────────────
+brew "tmux"
+brew "sesh"                     # tmux session-ök zoxide alapján
+brew "yazi"                     # fájlkezelő
+brew "lazygit"
+brew "lazydocker"
+brew "git-delta"                # diff pager
+
+# ── Neovim ──────────────────────────────────────────────────────────────
+brew "neovim"
+brew "tree-sitter-cli"
+
+# ── Terminál és font ────────────────────────────────────────────────────
+cask "wezterm@nightly"
+cask "font-jetbrains-mono-nerd-font"
+# cask "ghostty"                # ha egyszer kipróbálnád
+
+# ── Közös appok ─────────────────────────────────────────────────────────
+cask "visual-studio-code"
+cask "docker-desktop"
+cask "claude-code"
+cask "1password-cli"            # titkok a chezmoi sablonokba (op read)
+cask "stats"                    # menüsoros rendszerfigyelő
+{{- if .isPersonal }}
+
+# ── Személyes ───────────────────────────────────────────────────────────
+cask "brave-browser"
+cask "spotify"
+cask "vlc"
+cask "itsycal"
+cask "hiddenbar"
+{{- end }}
+{{- if .isWork }}
+
+# ── Céges ───────────────────────────────────────────────────────────────
+# Ide jönnek a céges gép extra csomagjai.
+{{- end }}

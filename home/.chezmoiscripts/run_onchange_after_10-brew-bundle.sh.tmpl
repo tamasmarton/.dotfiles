@@ -1,0 +1,9 @@
+{{- if .gui -}}
+#!/bin/bash
+# Lefut, ha a (generált) Brewfile tartalma megváltozott.
+# Brewfile hash: {{ includeTemplate "dot_config/homebrew/Brewfile.tmpl" . | sha256sum }}
+set -euo pipefail
+
+echo "==> Homebrew csomagok telepítése (brewfile install)…"
+"$HOME/.local/bin/brewfile" install
+{{ end -}}

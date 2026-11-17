@@ -1,0 +1,9 @@
+{{- /* Célútvonalak (a $HOME-hoz képest), amiket az adott gépen NEM kell kirakni. */ -}}
+
+{{ if not .gui }}
+# Konténerben / Linuxon nincs Homebrew csomaglista és GUI app config
+.config/homebrew
+.local/bin/brewfile
+.config/wezterm
+.config/ghostty
+{{ end }}

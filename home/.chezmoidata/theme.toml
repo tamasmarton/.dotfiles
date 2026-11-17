@@ -1,0 +1,44 @@
+# glacier-night — egyetlen paletta, ebből generálódik minden eszköz színe
+# (WezTerm, tmux, Starship, Neovim, bat, lazygit, fzf, delta).
+# Ihlet: Glacier téma, josean dev-environment, saját energiamérleg dashboard.
+# Sablonban: {{ .theme.accent }}, {{ .theme.ansi.red }} stb.
+
+[theme]
+name = "glacier-night"
+font = "JetBrainsMono Nerd Font"
+
+bg = "#050B11"          # fő háttér
+bg_alt = "#0A1620"      # státuszsor, popupok
+bg_highlight = "#143652" # aktív sor, keretek
+selection = "#033259"
+fg = "#CBE0F0"
+fg_bright = "#E6EDF3"
+muted = "#64748B"       # kommentek, inaktív elemek
+border = "#547998"
+
+accent = "#03E2C9"      # teal — fő kiemelőszín
+cursor = "#47FF9C"
+
+[theme.ansi]
+black = "#0E141C"
+red = "#FF4A4A"
+green = "#00FF88"
+yellow = "#F6C945"
+blue = "#3B82F6"
+magenta = "#C026D3"
+cyan = "#3DADD7"
+white = "#CBE0F0"
+
+[theme.bright]
+black = "#64748B"
+red = "#FF6B6B"
+green = "#47FF9C"
+yellow = "#FFE073"
+blue = "#60A5FA"
+magenta = "#FF4A90"
+cyan = "#03E2C9"
+white = "#F8FAFC"
+
+[theme.extra]
+orange = "#FF9A3C"
+pink = "#FF4A90"

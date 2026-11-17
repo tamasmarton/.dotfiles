@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# brewfile — Homebrew csomagok telepítése és karbantartása a dotfiles Brewfile alapján.
+#
+#   brewfile [install]   hiányzó csomagok telepítése (meglévőket nem frissíti)
+#   brewfile upgrade     brew update + telepítés + elavultak frissítése
+#   brewfile check       mi hiányzik a Brewfile-ból telepítve
+#   brewfile cleanup     mi van telepítve, ami NINCS a Brewfile-ban (csak lista)
+#   brewfile cleanup -f  ...és ezek eltávolítása (megerősítést kér)
+#   brewfile list        a Brewfile tartalma
+#   brewfile edit        Brewfile szerkesztése a chezmoi forrásban, majd apply
+set -euo pipefail
+
+BREWFILE="${BREWFILE:-${XDG_CONFIG_HOME:-$HOME/.config}/homebrew/Brewfile}"
+
+# brew a PATH-ban (új gépen a shell még nem tölti be)
+if ! command -v brew >/dev/null 2>&1; then
+  for p in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+    [[ -x "$p" ]] && eval "$("$p" shellenv)" && break
+  done
+fi
+command -v brew >/dev/null 2>&1 || { echo "brewfile: a Homebrew nincs telepítve." >&2; exit 1; }
+[[ -f "$BREWFILE" ]] || { echo "brewfile: nincs Brewfile itt: $BREWFILE (futtasd: chezmoi apply)" >&2; exit 1; }
+
+export HOMEBREW_NO_ANALYTICS=1
+
+cmd="${1:-install}"
+shift || true
+
+case "$cmd" in
+  install)
+    brew bundle install --file="$BREWFILE" --no-upgrade "$@"
+    ;;
+  upgrade)
+    brew update
+    brew bundle install --file="$BREWFILE" --upgrade "$@"
+    ;;
+  check)
+    brew bundle check --file="$BREWFILE" --verbose "$@"
+    ;;
+  cleanup)
+    if [[ "${1:-}" == "-f" || "${1:-}" == "--force" ]]; then
+      echo "Ezek kerülnek eltávolításra:"
+      brew bundle cleanup --file="$BREWFILE" || true
+      read -r -p "Biztosan eltávolítod őket? [y/N] " ans
+      [[ "$ans" =~ ^[Yy]$ ]] && brew bundle cleanup --file="$BREWFILE" --force
+    else
+      brew bundle cleanup --file="$BREWFILE" || true
+      echo
+      echo "(Csak lista. Eltávolítás: brewfile cleanup -f — vagy vedd fel őket a Brewfile-ba.)"
+    fi
+    ;;
+  list)
+    brew bundle list --file="$BREWFILE" --all
+    ;;
+  edit)
+    chezmoi edit --apply "$BREWFILE"
+    ;;
+  -h|--help|help)
+    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+    ;;
+  *)
+    echo "brewfile: ismeretlen parancs: $cmd (lásd: brewfile help)" >&2
+    exit 2
+    ;;
+esac
