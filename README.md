@@ -60,10 +60,12 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 .
 ├── install.sh                  belépési pont (új gép, devcontainer)
 ├── nvim/lazy-lock.json         Neovim plugin verziók (a lazy.nvim ide írja)
+├── vscode/glacier-night/       saját VS Code téma csomag (build.sh → .vsix)
 ├── .chezmoiroot                → a chezmoi forrás a home/ mappa
 └── home/
     ├── .chezmoi.toml.tmpl      profil kérdések → gépenkénti adatok
-    ├── .chezmoidata/theme.toml glacier-night paletta (minden eszköz ebből színez)
+    ├── .chezmoidata/theme.toml glacier-night paletta: felület + kódszínezés
+    ├── .chezmoitemplates/      VS Code téma sablon
     ├── .chezmoiignore          profil szerint kihagyott fájlok
     ├── .chezmoiscripts/        Homebrew telepítés, brew bundle
     ├── .chezmoiexternal.toml   antidote (zsh pluginkezelő) git repóból
@@ -93,6 +95,12 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 ### Téma
 
 Minden szín a [`.chezmoidata/theme.toml`](home/.chezmoidata/theme.toml) palettából jön. Ha itt átírsz egy színt, a `chezmoi apply` után a WezTerm, a tmux, a Starship, az fzf, a delta, az eza, a lazygit és a btop is követi. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
+
+### VS Code
+
+- **Téma:** saját [Glacier Night](vscode/glacier-night/) csomag. A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak.
+- **Fájlikonok:** Material Icon Theme (a Brewfile telepíti), a mappák cyan, az általános fájlok tompa színnel.
+- **Beállítások:** a chezmoi a `settings.json`-ban csak a témát, a fontot (JetBrainsMono Nerd Font) és néhány megjelenési beállítást írja. A többi beállításod megmarad.
 
 ### tmux röviden (prefix: `Ctrl-a`)
 

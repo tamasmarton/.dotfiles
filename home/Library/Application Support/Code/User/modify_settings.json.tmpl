@@ -1,0 +1,35 @@
+{{- /*
+  VS Code settings.json — a chezmoi NEM írja felül, csak az itt felsorolt kulcsokat állítja be,
+  a többi beállításod megmarad. (A fájlban lévő kommentek elvesznek, a JSON újraformázódik.)
+*/ -}}
+{{- $t := .theme -}}
+{{- $settings := dict -}}
+{{- if .chezmoi.stdin | trim -}}
+{{-   $settings = .chezmoi.stdin | fromJsonc -}}
+{{- end -}}
+
+{{- /* Téma és ikonok */ -}}
+{{- $_ := set $settings "workbench.colorTheme" "Glacier Night" -}}
+{{- $_ := set $settings "workbench.iconTheme" "material-icon-theme" -}}
+{{- $_ := set $settings "material-icon-theme.folders.color" $t.ansi.cyan -}}
+{{- $_ := set $settings "material-icon-theme.files.color" $t.muted -}}
+
+{{- /* Font */ -}}
+{{- $font := printf "'%s', 'JetBrains Mono', Menlo, monospace" $t.font -}}
+{{- $_ := set $settings "editor.fontFamily" $font -}}
+{{- $_ := set $settings "editor.fontLigatures" true -}}
+{{- $_ := set $settings "editor.fontSize" 14 -}}
+{{- $_ := set $settings "editor.lineHeight" 1.6 -}}
+{{- $_ := set $settings "terminal.integrated.fontFamily" (printf "'%s'" $t.font) -}}
+{{- $_ := set $settings "terminal.integrated.fontSize" 14 -}}
+
+{{- /* Megjelenés */ -}}
+{{- $_ := set $settings "editor.semanticHighlighting.enabled" true -}}
+{{- $_ := set $settings "editor.bracketPairColorization.enabled" true -}}
+{{- $_ := set $settings "editor.guides.bracketPairs" "active" -}}
+{{- $_ := set $settings "editor.cursorBlinking" "solid" -}}
+{{- $_ := set $settings "editor.renderLineHighlight" "all" -}}
+{{- $_ := set $settings "workbench.tree.indent" 14 -}}
+{{- $_ := set $settings "workbench.tree.renderIndentGuides" "always" -}}
+
+{{- $settings | toPrettyJson }}

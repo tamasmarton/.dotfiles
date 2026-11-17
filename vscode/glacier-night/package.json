@@ -1,0 +1,37 @@
+{
+  "name": "glacier-night",
+  "displayName": "Glacier Night",
+  "description": "Deep navy dark theme with teal accents — matches the glacier-night terminal, tmux and Neovim setup.",
+  "version": "0.1.0",
+  "publisher": "tamasmarton",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "dark",
+    "navy",
+    "teal",
+    "glacier"
+  ],
+  "galleryBanner": {
+    "color": "#050B11",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tamasmarton/.dotfiles"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "label": "Glacier Night",
+        "uiTheme": "vs-dark",
+        "path": "./themes/glacier-night-color-theme.json"
+      }
+    ]
+  }
+}

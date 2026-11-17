@@ -1,0 +1,17 @@
+{{- if .gui -}}
+#!/bin/bash
+# Glacier Night VS Code téma: újragenerálás és telepítés, ha a paletta, a sablon vagy a csomag változik.
+# téma hash: {{ includeTemplate "vscode-glacier-night.json" . | sha256sum }}
+# csomag hash: {{ joinPath .chezmoi.workingTree "vscode/glacier-night/package.json" | include | sha256sum }}
+set -euo pipefail
+
+pkg="{{ .chezmoi.workingTree }}/vscode/glacier-night"
+
+# A JSON-t a chezmoi itt rendereli (a build.sh-ból nem hívhatjuk a chezmoit apply közben)
+cat >"$pkg/themes/glacier-night-color-theme.json" <<'GLACIER_NIGHT_JSON'
+{{ includeTemplate "vscode-glacier-night.json" . | trim }}
+GLACIER_NIGHT_JSON
+
+echo "==> Glacier Night VS Code téma csomagolása és telepítése…"
+"$pkg/build.sh" --skip-render --install || echo "Figyelem: a VS Code téma telepítése nem sikerült (a többi beállítás rendben)." >&2
+{{ end -}}
