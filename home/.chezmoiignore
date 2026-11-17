@@ -15,3 +15,5 @@
 # Gépspecifikus, nem verziózott fájlok — a chezmoi soha ne nyúljon hozzájuk
 .config/zsh/local.zsh
 .config/git/local
+.config/wezterm/local.lua
+.config/tmux/local.conf

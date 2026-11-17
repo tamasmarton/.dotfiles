@@ -1,0 +1,112 @@
+# tmux — josean-alapú, glacier-night státuszsorral
+# Generálva: home/dot_config/tmux/tmux.conf.tmpl + .chezmoidata/theme.toml
+# A pluginokat a chezmoi tölti le (.chezmoiexternal.toml), tpm nem kell.
+{{- $t := .theme }}
+
+# ── Alap ────────────────────────────────────────────────────────────────
+set -g default-terminal "tmux-256color"
+set -as terminal-features ",xterm-256color:RGB,wezterm:RGB,xterm-ghostty:RGB"
+set -g escape-time 10
+set -g focus-events on
+set -g history-limit 50000
+set -g mouse on
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -g set-clipboard on
+set -g detach-on-destroy off          # session bezárásakor egy másikra vált, nem lép ki
+set -g display-time 2000
+set -g allow-passthrough on           # képek / OSC sorozatok (pl. nvim) átengedése
+setw -g mode-keys vi
+
+# ── Prefix: Ctrl-a ──────────────────────────────────────────────────────
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+
+# ── Panelek és ablakok (az aktuális mappában nyílnak) ───────────────────
+unbind %
+bind | split-window -h -c "#{pane_current_path}"
+unbind '"'
+bind - split-window -v -c "#{pane_current_path}"
+bind c new-window -c "#{pane_current_path}"
+
+bind -r j resize-pane -D 5
+bind -r k resize-pane -U 5
+bind -r l resize-pane -R 5
+bind -r h resize-pane -L 5
+bind -r m resize-pane -Z
+
+unbind r
+bind r source-file ~/.config/tmux/tmux.conf \; display "tmux.conf újratöltve"
+
+# ── Copy mode (vi) ──────────────────────────────────────────────────────
+bind -T copy-mode-vi v send -X begin-selection
+bind -T copy-mode-vi y send -X copy-selection
+unbind -T copy-mode-vi MouseDragEnd1Pane    # egérrel kijelölés után ne lépjen ki
+
+# ── Popupok ─────────────────────────────────────────────────────────────
+# prefix g: lazygit az aktuális mappában
+bind g display-popup -E -w 90% -h 90% -d "#{pane_current_path}" lazygit
+# prefix L: előző session
+bind L run-shell "sesh last"
+# prefix T: session választó (sesh + fzf) — ^a minden, ^t tmux, ^x zoxide, ^f keresés, ^d bezár
+bind T run-shell "sesh connect \"$(
+  sesh list --icons | fzf-tmux -p 80%,70% \
+    --no-sort --ansi --border-label ' sesh ' --prompt '❯ ' \
+    --header '  ^a mind  ^t tmux  ^x zoxide  ^f keresés  ^d bezár' \
+    --bind 'tab:down,btab:up' \
+    --bind 'ctrl-a:change-prompt(❯ )+reload(sesh list --icons)' \
+    --bind 'ctrl-t:change-prompt(tmux ❯ )+reload(sesh list -t --icons)' \
+    --bind 'ctrl-x:change-prompt(zoxide ❯ )+reload(sesh list -z --icons)' \
+    --bind 'ctrl-f:change-prompt(keresés ❯ )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
+    --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(❯ )+reload(sesh list --icons)' \
+    --preview-window 'right:55%' \
+    --preview 'sesh preview {}'
+)\""
+
+# ── Téma: glacier-night ─────────────────────────────────────────────────
+set -g status-position top
+set -g status-interval 5
+set -g status-justify left
+set -g status-style "bg={{ $t.bg_alt }},fg={{ $t.fg }}"
+
+set -g status-left-length 40
+set -g status-left "#[fg={{ $t.accent }},bold] ● #S #[default] "
+
+set -g status-right-length 80
+set -g status-right "#{?client_prefix,#[fg={{ $t.bg }}#,bg={{ $t.ansi.yellow }}#,bold] PREFIX #[default] ,}#[fg={{ $t.muted }}]%H:%M "
+
+setw -g window-status-separator ""
+setw -g window-status-format "#[fg={{ $t.muted }}] #I:#W "
+setw -g window-status-current-format "#[fg={{ $t.bg }},bg={{ $t.accent }},bold] #I:#W#{?window_zoomed_flag, [z],} "
+setw -g window-status-activity-style "fg={{ $t.ansi.yellow }}"
+
+set -g pane-border-style "fg={{ $t.bg_highlight }}"
+set -g pane-active-border-style "fg={{ $t.accent }}"
+set -g pane-border-lines heavy
+set -g popup-border-style "fg={{ $t.border }}"
+set -g popup-border-lines rounded
+set -g message-style "bg={{ $t.bg_highlight }},fg={{ $t.fg_bright }}"
+set -g message-command-style "bg={{ $t.bg_highlight }},fg={{ $t.fg_bright }}"
+setw -g mode-style "bg={{ $t.selection }},fg={{ $t.fg_bright }}"
+setw -g clock-mode-colour "{{ $t.accent }}"
+
+# ── Pluginok ────────────────────────────────────────────────────────────
+set -g @resurrect-capture-pane-contents "on"
+set -g @resurrect-strategy-nvim "session"
+set -g @continuum-restore "on"
+set -g @continuum-save-interval "15"
+
+# Ctrl-h/j/k/l: mozgás tmux panelek és nvim splitek között (az nvim oldali párja a 4. fázisban jön)
+if "test -f ~/.config/tmux/plugins/vim-tmux-navigator/vim-tmux-navigator.tmux" \
+  "run-shell ~/.config/tmux/plugins/vim-tmux-navigator/vim-tmux-navigator.tmux"
+# prefix Ctrl-s mentés / Ctrl-r visszaállítás; a continuum 15 percenként automatikusan ment
+if "test -f ~/.config/tmux/plugins/tmux-resurrect/resurrect.tmux" \
+  "run-shell ~/.config/tmux/plugins/tmux-resurrect/resurrect.tmux"
+# A continuum a status-right-ba kötődik, ezért a téma után kell betölteni
+if "test -f ~/.config/tmux/plugins/tmux-continuum/continuum.tmux" \
+  "run-shell ~/.config/tmux/plugins/tmux-continuum/continuum.tmux"
+
+# Gépspecifikus kiegészítés (nem verziózott)
+if "test -f ~/.config/tmux/local.conf" "source-file ~/.config/tmux/local.conf"

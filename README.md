@@ -73,6 +73,10 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
     │   ├── starship.toml.tmpl  prompt a palettából
     │   ├── mise/               Node LTS, pnpm, Go, Java (Temurin 25)
     │   ├── atuin/              kereshető history (Ctrl-R)
+    │   ├── wezterm/            terminál (Lua), ghostty/ opcionális alternatíva
+    │   ├── tmux/               josean-alapú config, glacier-night státuszsor
+    │   ├── sesh/               tmux session-ök
+    │   ├── bat/ eza/ lazygit/ btop/   a palettából színezve
     │   └── homebrew/           Brewfile
     └── dot_local/bin/          saját parancsok (brewfile)
 ```
@@ -84,12 +88,38 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 - **`cd`** a zoxide-ot használja (`cd proj` → a leggyakoribb illeszkedő mappa), `cdi` interaktív
 - **Runtime-ok:** `mise use node@20` a projektben, a `.nvmrc` / `.java-version` fájlokat is felismeri
 
+### Téma
+
+Minden szín a [`.chezmoidata/theme.toml`](home/.chezmoidata/theme.toml) palettából jön. Ha itt átírsz egy színt, a `chezmoi apply` után a WezTerm, a tmux, a Starship, az fzf, a delta, az eza, a lazygit és a btop is követi. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
+
+### tmux röviden (prefix: `Ctrl-a`)
+
+| Billentyű | Mit csinál |
+|---|---|
+| `\|` / `-` | függőleges / vízszintes split az aktuális mappában |
+| `Ctrl-h/j/k/l` | mozgás panelek (és nvim splitek) között, prefix nélkül |
+| `h/j/k/l` · `m` | panel átméretezése · zoom |
+| `T` | session választó (sesh + fzf + zoxide) |
+| `L` | előző session |
+| `g` | lazygit popup |
+| `Ctrl-s` / `Ctrl-r` | session mentése / visszaállítása (15 percenként automatikus) |
+| `r` | config újratöltése |
+
+A tmux pluginokat (vim-tmux-navigator, resurrect, continuum) a chezmoi tölti le, tpm nem kell.
+
+### WezTerm
+
+- **Option billentyűk:** a bal Option Alt-ként működik (fzf `Alt-C`, szóugrás), a jobb Option a magyar billentyűzet speciális karaktereit adja (`@`, `[`, `~` …).
+- **Gyorsbillentyűk:** `Cmd-K` törli a képernyőt, `Shift-Enter` új sort ír (pl. Claude Code-ban).
+
 ### Gépspecifikus, nem verziózott fájlok
 
 | Fájl | Mire jó |
 |---|---|
 | `~/.config/zsh/local.zsh` | csak ezen a gépen kellő shell beállítások |
 | `~/.config/git/local` | pl. más email egy mappára (`includeIf`) |
+| `~/.config/wezterm/local.lua` | pl. más fontméret: `return function(c) c.font_size = 14 end` |
+| `~/.config/tmux/local.conf` | extra tmux beállítások |
 
 ### Profilok
 

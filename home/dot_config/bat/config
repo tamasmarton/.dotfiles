@@ -1,0 +1,4 @@
+# bat — az "ansi" téma a terminál 16 színét használja, így automatikusan glacier-night
+--theme="ansi"
+--style="numbers,changes,header"
+--italic-text=always

@@ -1,0 +1,30 @@
+# lazygit — glacier-night (generálva: .chezmoidata/theme.toml)
+# A ~/.config/lazygit-et a ~/.zshenv-ben beállított XDG_CONFIG_HOME miatt olvassa.
+{{- $t := .theme }}
+
+gui:
+  nerdFontsVersion: "3"
+  border: rounded
+  showRandomTip: false
+  theme:
+    activeBorderColor: ["{{ $t.accent }}", bold]
+    inactiveBorderColor: ["{{ $t.border }}"]
+    searchingActiveBorderColor: ["{{ $t.ansi.yellow }}", bold]
+    optionsTextColor: ["{{ $t.ansi.cyan }}"]
+    selectedLineBgColor: ["{{ $t.bg_highlight }}"]
+    inactiveViewSelectedLineBgColor: ["{{ $t.bg_alt }}"]
+    cherryPickedCommitFgColor: ["{{ $t.accent }}"]
+    cherryPickedCommitBgColor: ["{{ $t.bg_highlight }}"]
+    markedBaseCommitFgColor: ["{{ $t.ansi.cyan }}"]
+    markedBaseCommitBgColor: ["{{ $t.ansi.yellow }}"]
+    unstagedChangesColor: ["{{ $t.ansi.red }}"]
+    defaultFgColor: ["{{ $t.fg }}"]
+
+git:
+  diffRenderers:
+    - command: delta --dark --paging=never
+    - type: rawGit
+      name: default
+
+os:
+  editPreset: nvim

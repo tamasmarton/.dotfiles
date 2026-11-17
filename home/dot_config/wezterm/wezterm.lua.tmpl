@@ -1,0 +1,83 @@
+-- WezTerm — glacier-night
+-- Generálva: home/dot_config/wezterm/wezterm.lua.tmpl + .chezmoidata/theme.toml
+-- Gépspecifikus felülírás (nem verziózott): ~/.config/wezterm/local.lua
+--   return function(config) config.font_size = 14 end
+{{- $t := .theme }}
+
+local wezterm = require("wezterm")
+local act = wezterm.action
+local config = wezterm.config_builder()
+
+-- ── Font ────────────────────────────────────────────────────────────────
+config.font = wezterm.font_with_fallback({
+  { family = "{{ $t.font }}", weight = "Medium" },
+  "Apple Color Emoji",
+})
+config.font_size = 15
+config.line_height = 1.1
+
+-- ── Színek ──────────────────────────────────────────────────────────────
+config.colors = {
+  foreground = "{{ $t.fg }}",
+  background = "{{ $t.bg }}",
+  cursor_bg = "{{ $t.cursor }}",
+  cursor_fg = "{{ $t.bg }}",
+  cursor_border = "{{ $t.cursor }}",
+  selection_bg = "{{ $t.selection }}",
+  selection_fg = "{{ $t.fg_bright }}",
+  split = "{{ $t.bg_highlight }}",
+  compose_cursor = "{{ $t.extra.orange }}",
+  scrollbar_thumb = "{{ $t.bg_highlight }}",
+  ansi = {
+    "{{ $t.ansi.black }}", "{{ $t.ansi.red }}", "{{ $t.ansi.green }}", "{{ $t.ansi.yellow }}",
+    "{{ $t.ansi.blue }}", "{{ $t.ansi.magenta }}", "{{ $t.ansi.cyan }}", "{{ $t.ansi.white }}",
+  },
+  brights = {
+    "{{ $t.bright.black }}", "{{ $t.bright.red }}", "{{ $t.bright.green }}", "{{ $t.bright.yellow }}",
+    "{{ $t.bright.blue }}", "{{ $t.bright.magenta }}", "{{ $t.bright.cyan }}", "{{ $t.bright.white }}",
+  },
+}
+
+-- ── Ablak ───────────────────────────────────────────────────────────────
+config.window_decorations = "RESIZE"
+config.enable_tab_bar = false              -- a tabokat/paneleket a tmux kezeli
+config.window_background_opacity = 0.92
+config.macos_window_background_blur = 20
+config.window_padding = { left = 12, right = 12, top = 10, bottom = 6 }
+config.initial_cols = 140
+config.initial_rows = 40
+config.adjust_window_size_when_changing_font_size = false
+config.native_macos_fullscreen_mode = false
+
+-- ── Viselkedés ──────────────────────────────────────────────────────────
+config.front_end = "WebGpu"
+config.max_fps = 120
+config.scrollback_lines = 10000
+config.audible_bell = "Disabled"
+config.default_cursor_style = "SteadyBlock"
+config.check_for_updates = false
+
+-- Bal Option = Alt (fzf Alt-C, szóugrás), jobb Option = ékezetek/speciális karakterek (@, [, ~ …)
+config.send_composed_key_when_left_alt_is_pressed = false
+config.send_composed_key_when_right_alt_is_pressed = true
+
+-- ── Billentyűk ──────────────────────────────────────────────────────────
+config.keys = {
+  -- Cmd+K: képernyő és scrollback törlése
+  { key = "k", mods = "CMD", action = act.ClearScrollback("ScrollbackAndViewport") },
+  -- Option+←/→: szavanként, Cmd+←/→: sor eleje/vége
+  { key = "LeftArrow", mods = "OPT", action = act.SendString("\x1bb") },
+  { key = "RightArrow", mods = "OPT", action = act.SendString("\x1bf") },
+  { key = "LeftArrow", mods = "CMD", action = act.SendString("\x01") },
+  { key = "RightArrow", mods = "CMD", action = act.SendString("\x05") },
+  -- Shift+Enter: új sor (pl. Claude Code promptban)
+  { key = "Enter", mods = "SHIFT", action = act.SendString("\x1b\r") },
+}
+
+-- ── Gépspecifikus felülírás ─────────────────────────────────────────────
+local ok, local_config = pcall(require, "local")
+if ok and type(local_config) == "function" then
+  local_config(config)
+end
+
+return config

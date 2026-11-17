@@ -1,0 +1,7 @@
+# sesh — tmux session-ök (prefix T a választó)
+# A zoxide-ban lévő mappák automatikusan megjelennek, ide csak a fix session-ök kellenek.
+
+[[session]]
+name = "dotfiles"
+path = "{{ .chezmoi.workingTree }}"
+startup_command = "nvim"

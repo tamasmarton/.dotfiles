@@ -9,3 +9,25 @@
         args = ["--depth", "1"]
     [".local/share/antidote".pull]
         args = ["--ff-only"]
+
+# tmux pluginok — tpm helyett közvetlenül a chezmoi tölti le, a tmux.conf `run-shell`-lel tölti be
+[".config/tmux/plugins/vim-tmux-navigator"]
+    type = "git-repo"
+    url = "https://github.com/christoomey/vim-tmux-navigator.git"
+    refreshPeriod = "168h"
+    [".config/tmux/plugins/vim-tmux-navigator".clone]
+        args = ["--depth", "1"]
+
+[".config/tmux/plugins/tmux-resurrect"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tmux-resurrect.git"
+    refreshPeriod = "168h"
+    [".config/tmux/plugins/tmux-resurrect".clone]
+        args = ["--depth", "1"]
+
+[".config/tmux/plugins/tmux-continuum"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tmux-continuum.git"
+    refreshPeriod = "168h"
+    [".config/tmux/plugins/tmux-continuum".clone]
+        args = ["--depth", "1"]

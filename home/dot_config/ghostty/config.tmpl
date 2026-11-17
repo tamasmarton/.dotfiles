@@ -1,0 +1,44 @@
+# Ghostty — glacier-night (opcionális; a Brewfile-ban a cask ki van kommentezve)
+# Generálva: home/dot_config/ghostty/config.tmpl + .chezmoidata/theme.toml
+{{- $t := .theme }}
+
+font-family = {{ $t.font }}
+font-size = 15
+adjust-cell-height = 10%
+
+background = {{ $t.bg }}
+foreground = {{ $t.fg }}
+cursor-color = {{ $t.cursor }}
+cursor-text = {{ $t.bg }}
+selection-background = {{ $t.selection }}
+selection-foreground = {{ $t.fg_bright }}
+
+palette = 0={{ $t.ansi.black }}
+palette = 1={{ $t.ansi.red }}
+palette = 2={{ $t.ansi.green }}
+palette = 3={{ $t.ansi.yellow }}
+palette = 4={{ $t.ansi.blue }}
+palette = 5={{ $t.ansi.magenta }}
+palette = 6={{ $t.ansi.cyan }}
+palette = 7={{ $t.ansi.white }}
+palette = 8={{ $t.bright.black }}
+palette = 9={{ $t.bright.red }}
+palette = 10={{ $t.bright.green }}
+palette = 11={{ $t.bright.yellow }}
+palette = 12={{ $t.bright.blue }}
+palette = 13={{ $t.bright.magenta }}
+palette = 14={{ $t.bright.cyan }}
+palette = 15={{ $t.bright.white }}
+
+background-opacity = 0.92
+background-blur = 20
+window-padding-x = 12
+window-padding-y = 10
+macos-titlebar-style = hidden
+macos-option-as-alt = left
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor
+confirm-close-surface = false
+
+keybind = shift+enter=text:\x1b\r

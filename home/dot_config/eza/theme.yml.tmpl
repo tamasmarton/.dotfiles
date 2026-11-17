@@ -1,0 +1,93 @@
+# eza — glacier-night (generálva: .chezmoidata/theme.toml)
+{{- $t := .theme }}
+colourful: true
+
+filekinds:
+  normal: {foreground: "{{ $t.fg }}"}
+  directory: {foreground: "{{ $t.ansi.cyan }}", is_bold: true}
+  symlink: {foreground: "{{ $t.accent }}"}
+  pipe: {foreground: "{{ $t.ansi.yellow }}"}
+  block_device: {foreground: "{{ $t.ansi.yellow }}", is_bold: true}
+  char_device: {foreground: "{{ $t.ansi.yellow }}", is_bold: true}
+  socket: {foreground: "{{ $t.extra.pink }}"}
+  special: {foreground: "{{ $t.ansi.magenta }}"}
+  executable: {foreground: "{{ $t.ansi.green }}", is_bold: true}
+  mount_point: {foreground: "{{ $t.ansi.cyan }}", is_underline: true}
+
+perms:
+  user_read: {foreground: "{{ $t.ansi.yellow }}"}
+  user_write: {foreground: "{{ $t.ansi.red }}"}
+  user_execute_file: {foreground: "{{ $t.ansi.green }}"}
+  user_execute_other: {foreground: "{{ $t.ansi.green }}"}
+  group_read: {foreground: "{{ $t.muted }}"}
+  group_write: {foreground: "{{ $t.muted }}"}
+  group_execute: {foreground: "{{ $t.muted }}"}
+  other_read: {foreground: "{{ $t.muted }}"}
+  other_write: {foreground: "{{ $t.muted }}"}
+  other_execute: {foreground: "{{ $t.muted }}"}
+  special_user_file: {foreground: "{{ $t.ansi.magenta }}"}
+  special_other: {foreground: "{{ $t.ansi.magenta }}"}
+  attribute: {foreground: "{{ $t.muted }}"}
+
+size:
+  major: {foreground: "{{ $t.ansi.cyan }}"}
+  minor: {foreground: "{{ $t.ansi.cyan }}"}
+  number_byte: {foreground: "{{ $t.fg }}"}
+  number_kilo: {foreground: "{{ $t.fg }}"}
+  number_mega: {foreground: "{{ $t.accent }}"}
+  number_giga: {foreground: "{{ $t.ansi.yellow }}"}
+  number_huge: {foreground: "{{ $t.ansi.red }}"}
+  unit_byte: {foreground: "{{ $t.muted }}"}
+  unit_kilo: {foreground: "{{ $t.muted }}"}
+  unit_mega: {foreground: "{{ $t.accent }}"}
+  unit_giga: {foreground: "{{ $t.ansi.yellow }}"}
+  unit_huge: {foreground: "{{ $t.ansi.red }}"}
+
+users:
+  user_you: {foreground: "{{ $t.fg }}"}
+  user_root: {foreground: "{{ $t.ansi.red }}"}
+  user_other: {foreground: "{{ $t.ansi.yellow }}"}
+  group_yours: {foreground: "{{ $t.muted }}"}
+  group_other: {foreground: "{{ $t.muted }}"}
+  group_root: {foreground: "{{ $t.ansi.red }}"}
+
+links:
+  normal: {foreground: "{{ $t.muted }}"}
+  multi_link_file: {foreground: "{{ $t.ansi.yellow }}"}
+
+git:
+  new: {foreground: "{{ $t.ansi.green }}"}
+  modified: {foreground: "{{ $t.ansi.yellow }}"}
+  deleted: {foreground: "{{ $t.ansi.red }}"}
+  renamed: {foreground: "{{ $t.ansi.cyan }}"}
+  ignored: {foreground: "{{ $t.muted }}"}
+  conflicted: {foreground: "{{ $t.ansi.red }}", is_bold: true}
+
+git_repo:
+  branch_main: {foreground: "{{ $t.ansi.green }}"}
+  branch_other: {foreground: "{{ $t.ansi.yellow }}"}
+  git_clean: {foreground: "{{ $t.ansi.green }}"}
+  git_dirty: {foreground: "{{ $t.ansi.yellow }}"}
+
+file_type:
+  image: {foreground: "{{ $t.extra.pink }}"}
+  video: {foreground: "{{ $t.extra.pink }}"}
+  music: {foreground: "{{ $t.ansi.magenta }}"}
+  crypto: {foreground: "{{ $t.ansi.red }}"}
+  document: {foreground: "{{ $t.fg }}"}
+  compressed: {foreground: "{{ $t.extra.orange }}"}
+  temp: {foreground: "{{ $t.muted }}"}
+  compiled: {foreground: "{{ $t.muted }}"}
+  build: {foreground: "{{ $t.ansi.yellow }}", is_underline: true}
+  source: {foreground: "{{ $t.fg_bright }}"}
+
+punctuation: {foreground: "{{ $t.muted }}"}
+date: {foreground: "{{ $t.ansi.blue }}"}
+inode: {foreground: "{{ $t.muted }}"}
+blocks: {foreground: "{{ $t.muted }}"}
+header: {foreground: "{{ $t.fg_bright }}", is_underline: true}
+octal: {foreground: "{{ $t.ansi.cyan }}"}
+flags: {foreground: "{{ $t.muted }}"}
+control_char: {foreground: "{{ $t.ansi.red }}"}
+broken_symlink: {foreground: "{{ $t.ansi.red }}"}
+broken_path_overlay: {is_underline: true}
