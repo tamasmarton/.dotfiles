@@ -1,0 +1,70 @@
+-- Tokyonight Night, a UI színek a glacier-night palettából (generálva: .chezmoidata/theme.toml)
+-- A szintaxis színek a tokyonight-éi maradnak, csak a háttér, keretek és kiemelések jönnek a palettából.
+{{- $t := .theme }}
+return {
+  "folke/tokyonight.nvim",
+  lazy = false,
+  priority = 1000,
+  config = function()
+    local p = {
+      bg = "{{ $t.bg }}",
+      bg_alt = "{{ $t.bg_alt }}",
+      bg_highlight = "{{ $t.bg_highlight }}",
+      selection = "{{ $t.selection }}",
+      fg = "{{ $t.fg }}",
+      fg_bright = "{{ $t.fg_bright }}",
+      muted = "{{ $t.muted }}",
+      border = "{{ $t.border }}",
+      accent = "{{ $t.accent }}",
+      cursor = "{{ $t.cursor }}",
+      yellow = "{{ $t.ansi.yellow }}",
+    }
+
+    require("tokyonight").setup({
+      style = "night",
+      transparent = true,               -- a WezTerm háttere (és blurja) látszik
+      styles = {
+        sidebars = "transparent",
+        floats = "transparent",
+        comments = { italic = true },
+      },
+      on_colors = function(c)
+        c.bg = p.bg
+        c.bg_dark = p.bg_alt
+        c.bg_float = p.bg_alt
+        c.bg_popup = p.bg_alt
+        c.bg_sidebar = p.bg_alt
+        c.bg_statusline = p.bg_alt
+        c.bg_highlight = p.bg_highlight
+        c.bg_search = "#0A64AC"
+        c.bg_visual = p.selection
+        c.border = p.border
+        c.border_highlight = p.accent
+        c.fg = p.fg
+        c.fg_dark = "#B4D0E9"
+        c.fg_float = p.fg
+        c.fg_sidebar = "#B4D0E9"
+        c.fg_gutter = "#3B5068"
+        c.comment = p.muted
+      end,
+      on_highlights = function(hl, c)
+        hl.CursorLineNr = { fg = p.accent, bold = true }
+        hl.LineNr = { fg = "#3B5068" }
+        hl.FloatBorder = { fg = p.border }
+        hl.FloatTitle = { fg = p.accent, bold = true }
+        hl.WinSeparator = { fg = p.bg_highlight }
+        hl.Cursor = { fg = p.bg, bg = p.cursor }
+        hl.Search = { fg = p.fg_bright, bg = "#0A64AC" }
+        hl.IncSearch = { fg = p.bg, bg = p.yellow }
+        hl.SnacksIndentScope = { fg = p.accent }
+        hl.SnacksDashboardHeader = { fg = p.accent }
+        hl.SnacksDashboardKey = { fg = p.cursor }
+        hl.SnacksDashboardIcon = { fg = p.accent }
+        hl.SnacksPickerMatch = { fg = p.accent, bold = true }
+        hl.NvimTreeFolderIcon = { fg = c.blue }
+        hl.NvimTreeRootFolder = { fg = p.accent, bold = true }
+      end,
+    })
+    vim.cmd.colorscheme("tokyonight")
+  end,
+}

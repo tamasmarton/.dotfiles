@@ -1,0 +1,64 @@
+-- Státuszsor glacier-night színekkel (módonként más kiemelés)
+{{- $t := .theme }}
+return {
+  "nvim-lualine/lualine.nvim",
+  event = "VeryLazy",
+  dependencies = { "nvim-tree/nvim-web-devicons" },
+  config = function()
+    local c = {
+      bg = "{{ $t.bg_alt }}",
+      fg = "{{ $t.fg }}",
+      muted = "{{ $t.muted }}",
+      dark = "{{ $t.bg }}",
+      normal = "{{ $t.accent }}",
+      insert = "{{ $t.cursor }}",
+      visual = "{{ $t.extra.pink }}",
+      command = "{{ $t.ansi.yellow }}",
+      replace = "{{ $t.ansi.red }}",
+      inactive = "{{ $t.bg_highlight }}",
+    }
+    local function mode(color)
+      return {
+        a = { bg = color, fg = c.dark, gui = "bold" },
+        b = { bg = c.bg, fg = color },
+        c = { bg = c.bg, fg = c.fg },
+      }
+    end
+    local theme = {
+      normal = mode(c.normal),
+      insert = mode(c.insert),
+      visual = mode(c.visual),
+      command = mode(c.command),
+      replace = mode(c.replace),
+      inactive = {
+        a = { bg = c.inactive, fg = c.muted },
+        b = { bg = c.bg, fg = c.muted },
+        c = { bg = c.bg, fg = c.muted },
+      },
+    }
+
+    local lazy_status = require("lazy.status")
+    require("lualine").setup({
+      options = {
+        theme = theme,
+        globalstatus = true,
+        component_separators = "",
+        section_separators = { left = "", right = "" },
+        disabled_filetypes = { statusline = { "snacks_dashboard" } },
+      },
+      sections = {
+        lualine_a = { "mode" },
+        lualine_b = { "branch", "diff" },
+        lualine_c = { { "filename", path = 1, symbols = { modified = " ●", readonly = " " } } },
+        lualine_x = {
+          { lazy_status.updates, cond = lazy_status.has_updates, color = { fg = "{{ $t.extra.orange }}" } },
+          "diagnostics",
+          { "lsp_status", color = { fg = c.muted } },
+          "filetype",
+        },
+        lualine_y = { "progress" },
+        lualine_z = { "location" },
+      },
+    })
+  end,
+}

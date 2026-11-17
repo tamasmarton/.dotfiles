@@ -59,6 +59,7 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 ```
 .
 ├── install.sh                  belépési pont (új gép, devcontainer)
+├── nvim/lazy-lock.json         Neovim plugin verziók (a lazy.nvim ide írja)
 ├── .chezmoiroot                → a chezmoi forrás a home/ mappa
 └── home/
     ├── .chezmoi.toml.tmpl      profil kérdések → gépenkénti adatok
@@ -76,6 +77,7 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
     │   ├── wezterm/            terminál (Lua), ghostty/ opcionális alternatíva
     │   ├── tmux/               josean-alapú config, glacier-night státuszsor
     │   ├── sesh/               tmux session-ök
+    │   ├── nvim/               Neovim (josean-struktúra, modern pluginok)
     │   ├── bat/ eza/ lazygit/ btop/   a palettából színezve
     │   └── homebrew/           Brewfile
     └── dot_local/bin/          saját parancsok (brewfile)
@@ -111,6 +113,28 @@ A tmux pluginokat (vim-tmux-navigator, resurrect, continuum) a chezmoi tölti le
 
 - **Option billentyűk:** a bal Option Alt-ként működik (fzf `Alt-C`, szóugrás), a jobb Option a magyar billentyűzet speciális karaktereit adja (`@`, `[`, `~` …).
 - **Gyorsbillentyűk:** `Cmd-K` törli a képernyőt, `Shift-Enter` új sort ír (pl. Claude Code-ban).
+
+### Neovim röviden (leader: `Space`)
+
+Josean-alapú struktúra és billentyűzés, modern alapokon: lazy.nvim, natív `vim.lsp`, blink.cmp, snacks.nvim (picker, dashboard, lazygit), treesitter (main ág), conform, nvim-lint, nvim-dap, nvim-jdtls.
+
+| Billentyű | Mit csinál |
+|---|---|
+| `ff` `fs` `fr` `fc` `ft` `fb` | fájl · szöveg · legutóbbi · kurzor alatti szó · TODO · bufferek |
+| `ee` `ef` | fájlfa · fájlfa az aktuális fájlnál |
+| `gd` `gR` `gi` `gt` `K` | definíció · hivatkozások · implementáció · típus · dokumentáció |
+| `ca` `rn` `mp` | code action · átnevezés · formázás |
+| `d` `D` `[d` `]d` | diagnosztika: sor · fájl · előző · következő |
+| `hs` `hr` `hp` `hb` `]h` `[h` | git hunk: stage · reset · előnézet · blame · ugrás |
+| `lg` | lazygit |
+| `xw` `xd` | trouble: projekt / fájl diagnosztikák |
+| `sv` `sh` `sx` `sm` | split: függőleges · vízszintes · bezár · maximalizál |
+| `F5` `F9` `F10` `F11` · `bb` `bu` `bt` | debug (VS Code-szerűen) · breakpoint · UI · Go teszt debug |
+| `jo` `jt` `jT` `jv` | Java: importok · teszt metódus · teszt osztály · változó kiemelése |
+
+- **Nyelvek:** TS/JS (vtsls, eslint, prettier vagy biome), Go (gopls, gofumpt, golangci-lint, delve), Java (jdtls + Lombok, debug, tesztek), Lua, Docker, YAML/JSON (SchemaStore).
+- **Plugin verziók:** a [`nvim/lazy-lock.json`](nvim/lazy-lock.json) a repóban van. A `:Lazy update` után a változás git diffként jelenik meg.
+- **Formázás mentéskor:** a `:FormatToggle` kapcsolja ki vagy be.
 
 ### Gépspecifikus, nem verziózott fájlok
 
