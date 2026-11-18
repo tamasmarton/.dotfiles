@@ -1,8 +1,10 @@
 # dotfiles
 
+[![CI](https://github.com/tamasmarton/.dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/tamasmarton/.dotfiles/actions/workflows/ci.yml)
+
 macOS fejlesztői környezet [chezmoi](https://www.chezmoi.io/)-val, saját és céges gépre, valamint devcontainerbe.
 
-**Stack:** zsh + Starship · WezTerm + tmux · Neovim · mise (Node, Go, Java) · glacier-night téma · JetBrainsMono Nerd Font
+**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját Glacier Night téma) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · glacier-night téma · JetBrainsMono Nerd Font
 
 ## Telepítés
 
@@ -18,7 +20,13 @@ Az `install.sh` feltelepíti a chezmoit, megkérdezi a gép profilját (`persona
 
 1. telepíti a Homebrew-t, ha még nincs,
 2. kirakja a configokat a `$HOME`-ba,
-3. a `Brewfile` alapján telepíti a csomagokat.
+3. a `Brewfile` alapján telepíti a csomagokat,
+4. `mise install`: Node, pnpm, Go, Java,
+5. megépíti és telepíti a Glacier Night VS Code témát,
+6. bekapcsolja a herdr integrációt a Claude Code-hoz és az omp-hoz,
+7. beállítja a macOS defaults-ot (billentyűismétlés, Finder, Dock, képernyőképek).
+
+Egyetlen kézi lépés maradhat: a régi shell history importálása az atuinba (`atuin import auto`).
 
 ### Devcontainer
 
@@ -59,6 +67,7 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 ```
 .
 ├── install.sh                  belépési pont (új gép, devcontainer)
+├── .github/workflows/ci.yml    CI: minden profil renderelése és ellenőrzése, Neovim, témák
 ├── nvim/lazy-lock.json         Neovim plugin verziók (a lazy.nvim ide írja)
 ├── vscode/glacier-night/       saját VS Code téma csomag (build.sh → .vsix)
 ├── .chezmoiroot                → a chezmoi forrás a home/ mappa
@@ -67,7 +76,9 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
     ├── .chezmoidata/theme.toml glacier-night paletta: felület + kódszínezés
     ├── .chezmoitemplates/      VS Code téma sablon
     ├── .chezmoiignore          profil szerint kihagyott fájlok
-    ├── .chezmoiscripts/        Homebrew telepítés, brew bundle
+    ├── .chezmoiscripts/        Homebrew, brew bundle, mise install, VS Code téma, herdr integráció, macOS defaults
+    ├── dot_claude/             Claude Code: settings (merge), statusline, CLAUDE.md
+    ├── dot_omp/                oh-my-pi: téma és config (merge)
     ├── .chezmoiexternal.toml   antidote (zsh pluginkezelő) git repóból
     ├── dot_zshenv              ~/.zshenv → XDG változók, ZDOTDIR=~/.config/zsh
     ├── dot_config/
@@ -79,6 +90,8 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
     │   ├── wezterm/            terminál (Lua), ghostty/ opcionális alternatíva
     │   ├── tmux/               josean-alapú config, glacier-night státuszsor
     │   ├── sesh/               tmux session-ök
+    │   ├── herdr/              agent multiplexer téma (merge)
+    │   ├── aerospace/          tiling ablakkezelő (opcionális)
     │   ├── nvim/               Neovim (josean-struktúra, modern pluginok)
     │   ├── bat/ eza/ lazygit/ btop/   a palettából színezve
     │   └── homebrew/           Brewfile
@@ -101,6 +114,22 @@ Minden szín a [`.chezmoidata/theme.toml`](home/.chezmoidata/theme.toml) palett�
 - **Téma:** saját [Glacier Night](vscode/glacier-night/) csomag. A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak.
 - **Fájlikonok:** Material Icon Theme (a Brewfile telepíti), a mappák cyan, az általános fájlok tompa színnel.
 - **Beállítások:** a chezmoi a `settings.json`-ban csak a témát, a fontot (JetBrainsMono Nerd Font) és néhány megjelenési beállítást írja. A többi beállításod megmarad.
+
+### AI agentek: Claude Code, herdr, oh-my-pi
+
+- **Claude Code:** a chezmoi a `~/.claude/settings.json`-ba csak a glacier-night státuszsort írja, plusz a `theme`, `sandbox` és értesítés alapértékeket, ha még nincsenek. Az `env` (tokenek), `permissions`, `hooks` és `mcpServers` gépenként maradnak, és **soha nem kerülnek a repóba**.
+- **Globális utasítások:** a [`CLAUDE.md`](home/dot_claude/CLAUDE.md) (nyelv, stack, a dotfiles működése).
+- **herdr:** agent multiplexer, több Claude / omp session egy helyen. Glacier-night téma. A sidebarban látszik, melyik agent dolgozik, vár inputra vagy végzett.
+- **oh-my-pi (`omp`):** coding agent TUI, saját glacier-night témával és Nerd Font ikonokkal.
+- A herdr, omp és Claude configot az alkalmazások maguk is írják, ezért a chezmoi ezeket nem írja felül, csak a saját kulcsait állítja be bennük (`modify_` sablonok).
+
+### Opcionális appok
+
+| App | Mire jó | Indítás |
+|---|---|---|
+| **Ghostty** | alternatív terminál, ugyanazzal a palettával | nyisd meg a Ghostty-t |
+| **AeroSpace** | tiling ablakkezelő, `Ctrl-Opt` + `h/j/k/l`, workspace-ek `1–9` | nyisd meg az AeroSpace-t; nem indul el magától |
+| **Raycast** | launcher a Spotlight helyett | első indításkor végigvezet a beállításon |
 
 ### tmux röviden (prefix: `Ctrl-a`)
 

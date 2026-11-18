@@ -38,7 +38,7 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" },
     opts = {
-      ensure_installed = servers,
+      ensure_installed = vim.env.CI and {} or servers,   -- CI-ban nem telepít
       -- a telepített szervereket automatikusan bekapcsolja (vim.lsp.enable), kivéve:
       -- (a stylua-t a conform futtatja, LSP-ként nem kell)
       automatic_enable = { exclude = { "jdtls", "stylua" } },
@@ -48,6 +48,7 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     event = "VeryLazy",
     dependencies = { "mason-org/mason.nvim" },
-    opts = { ensure_installed = tools, run_on_start = true, start_delay = 3000 },
+    -- CI-ban (GitHub Actions) nem tölt le semmit induláskor
+    opts = { ensure_installed = tools, run_on_start = vim.env.CI == nil, start_delay = 3000 },
   },
 }

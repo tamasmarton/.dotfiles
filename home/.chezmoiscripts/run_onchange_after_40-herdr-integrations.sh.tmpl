@@ -1,0 +1,17 @@
+{{- if .gui -}}
+#!/bin/bash
+# herdr agent integrációk: a herdr sidebarban látszik a Claude Code és az omp sessionök állapota
+# (dolgozik / inputra vár / kész). Újrafut, ha a herdr verziója változik a Brewfile-ban.
+# herdr: {{ output "sh" "-c" "command -v herdr >/dev/null && herdr --version 2>/dev/null || echo none" | trim }}
+set -euo pipefail
+
+command -v herdr >/dev/null 2>&1 || { echo "herdr nincs telepítve, integrációk kihagyva"; exit 0; }
+
+for target in claude omp; do
+  if herdr integration status 2>/dev/null | grep -E "^${target}:" | grep -q "current"; then
+    continue
+  fi
+  echo "==> herdr integráció: $target"
+  herdr integration install "$target" || echo "Figyelem: herdr $target integráció nem sikerült" >&2
+done
+{{ end -}}

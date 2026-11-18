@@ -5,8 +5,8 @@
   [[ -d ${zcd:h} ]] || mkdir -p ${zcd:h}
   autoload -Uz compinit
   if [[ -n $zcd(#qN.mh+24) || ! -f $zcd ]]; then
-    compinit -d $zcd
+    compinit -i -d $zcd
   else
-    compinit -C -d $zcd
+    compinit -i -C -d $zcd
   fi
 }

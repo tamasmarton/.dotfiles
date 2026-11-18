@@ -1,0 +1,55 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+  herdr — agent multiplexer (~/.config/herdr/config.toml)
+  A herdr maga is írja ezt a fájlt (beállítások, billentyűk), ezért a chezmoi NEM írja felül:
+  csak az itt felsorolt kulcsokat állítja be, a többit meghagyja.
+  Ellenőrzés: herdr config check
+*/ -}}
+{{- $t := .theme -}}
+{{- $cfg := dict -}}
+{{- $current := get .chezmoi "stdin" | default "" -}}
+{{- if $current | trim -}}
+{{-   $cfg = $current | fromToml -}}
+{{- end -}}
+
+{{- $_ := set $cfg "onboarding" false -}}
+
+{{- /* Téma: a beépített alapra a glacier-night tokenek kerülnek */ -}}
+{{- $custom := dict
+      "accent" $t.accent
+      "panel_bg" $t.bg
+      "sidebar_bg" $t.bg_alt
+      "active_row_bg" $t.bg_highlight
+      "selection_bg" $t.selection
+      "surface0" $t.bg_alt
+      "surface1" $t.bg_highlight
+      "surface_dim" $t.bg
+      "overlay0" $t.muted
+      "overlay1" $t.border
+      "text" $t.fg
+      "subtext0" $t.muted
+      "mauve" $t.extra.pink
+      "green" $t.ansi.green
+      "yellow" $t.ansi.yellow
+      "red" $t.ansi.red
+      "blue" $t.ansi.blue
+      "teal" $t.accent
+      "peach" $t.extra.orange
+-}}
+{{- $theme := get $cfg "theme" | default dict -}}
+{{- $_ := set $theme "custom" $custom -}}
+{{- $_ := set $cfg "theme" $theme -}}
+
+{{- $ui := get $cfg "ui" | default dict -}}
+{{- $_ := set $ui "accent" $t.accent -}}
+{{- $toast := get $ui "toast" | default dict -}}
+{{- if not (hasKey $toast "delivery") -}}{{- $_ := set $toast "delivery" "herdr" -}}{{- end -}}
+{{- $_ := set $ui "toast" $toast -}}
+{{- $_ := set $cfg "ui" $ui -}}
+
+{{- /* A frissítést a Homebrew végzi (brewfile upgrade), a herdr saját update-je ne jelezzen */ -}}
+{{- $update := get $cfg "update" | default dict -}}
+{{- $_ := set $update "version_check" false -}}
+{{- $_ := set $cfg "update" $update -}}
+
+{{- $cfg | toToml -}}

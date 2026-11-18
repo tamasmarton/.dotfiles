@@ -1,0 +1,126 @@
+# AeroSpace — tiling ablakkezelő (opcionális kipróbálásra)
+# Indítás: nyisd meg az AeroSpace appot. Bejelentkezéskor NEM indul el magától (start-at-login = false).
+#
+# Módosító: Ctrl-Option (a sima Option a magyar billentyűzeten speciális karaktereket ad, ezért nem azt használjuk).
+#   Ctrl-Opt + h/j/k/l        fókusz balra / le / fel / jobbra
+#   Ctrl-Opt-Shift + h/j/k/l  ablak mozgatása
+#   Ctrl-Opt + 1..9           workspace váltás     · Ctrl-Opt-Shift + 1..9  ablak áthelyezése
+#   Ctrl-Opt + f              teljes képernyő      · Ctrl-Opt + t  lebegő / tiling váltás
+#   Ctrl-Opt + /  ,           tiles / accordion elrendezés
+#   Ctrl-Opt + Tab            előző workspace
+#   Ctrl-Opt + r              átméretező mód (h/j/k/l, Esc kilép)
+# Ajánlott macOS beállítás (a macOS defaults script beállítja): Spaces ne rendeződjenek át automatikusan.
+
+config-version = 2
+start-at-login = false
+after-startup-command = []
+
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+accordion-padding = 24
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+automatically-unhide-macos-hidden-apps = false
+
+[key-mapping]
+preset = 'qwerty'
+
+[gaps]
+inner.horizontal = 8
+inner.vertical = 8
+outer.left = 8
+outer.bottom = 8
+outer.top = 8
+outer.right = 8
+
+[mode.main.binding]
+ctrl-alt-slash = 'layout tiles horizontal vertical'
+ctrl-alt-comma = 'layout accordion horizontal vertical'
+
+ctrl-alt-h = 'focus left'
+ctrl-alt-j = 'focus down'
+ctrl-alt-k = 'focus up'
+ctrl-alt-l = 'focus right'
+
+ctrl-alt-shift-h = 'move left'
+ctrl-alt-shift-j = 'move down'
+ctrl-alt-shift-k = 'move up'
+ctrl-alt-shift-l = 'move right'
+
+ctrl-alt-f = 'fullscreen'
+ctrl-alt-t = 'layout floating tiling'
+ctrl-alt-minus = 'resize smart -50'
+ctrl-alt-equal = 'resize smart +50'
+
+ctrl-alt-1 = 'workspace 1'
+ctrl-alt-2 = 'workspace 2'
+ctrl-alt-3 = 'workspace 3'
+ctrl-alt-4 = 'workspace 4'
+ctrl-alt-5 = 'workspace 5'
+ctrl-alt-6 = 'workspace 6'
+ctrl-alt-7 = 'workspace 7'
+ctrl-alt-8 = 'workspace 8'
+ctrl-alt-9 = 'workspace 9'
+
+ctrl-alt-shift-1 = 'move-node-to-workspace 1'
+ctrl-alt-shift-2 = 'move-node-to-workspace 2'
+ctrl-alt-shift-3 = 'move-node-to-workspace 3'
+ctrl-alt-shift-4 = 'move-node-to-workspace 4'
+ctrl-alt-shift-5 = 'move-node-to-workspace 5'
+ctrl-alt-shift-6 = 'move-node-to-workspace 6'
+ctrl-alt-shift-7 = 'move-node-to-workspace 7'
+ctrl-alt-shift-8 = 'move-node-to-workspace 8'
+ctrl-alt-shift-9 = 'move-node-to-workspace 9'
+
+ctrl-alt-tab = 'workspace-back-and-forth'
+ctrl-alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+ctrl-alt-r = 'mode resize'
+
+[mode.resize.binding]
+h = 'resize width -50'
+j = 'resize height +50'
+k = 'resize height -50'
+l = 'resize width +50'
+equal = 'balance-sizes'
+esc = 'mode main'
+enter = 'mode main'
+
+# Workspace-ek: 1 terminál, 2 böngésző, 3 kód, 4 chat — a többi szabad
+[[on-window-detected]]
+if.app-id = 'com.github.wez.wezterm'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.brave.Browser'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'
+run = 'move-node-to-workspace 4'
+
+# Ezek mindig lebegnek
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.raycast.macos'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.1password.1password'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'eu.exelban.Stats'
+run = 'layout floating'

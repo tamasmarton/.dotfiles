@@ -1,11 +1,13 @@
+{{- /* chezmoi:modify-template */ -}}
 {{- /*
   VS Code settings.json — a chezmoi NEM írja felül, csak az itt felsorolt kulcsokat állítja be,
   a többi beállításod megmarad. (A fájlban lévő kommentek elvesznek, a JSON újraformázódik.)
 */ -}}
 {{- $t := .theme -}}
 {{- $settings := dict -}}
-{{- if .chezmoi.stdin | trim -}}
-{{-   $settings = .chezmoi.stdin | fromJsonc -}}
+{{- $current := get .chezmoi "stdin" | default "" -}}
+{{- if $current | trim -}}
+{{-   $settings = $current | fromJsonc -}}
 {{- end -}}
 
 {{- /* Téma és ikonok */ -}}

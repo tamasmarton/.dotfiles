@@ -32,5 +32,11 @@ else
   chezmoi="chezmoi"
 fi
 
+# Linuxon / konténerben nincs Homebrew: a mise adja a runtime-okat és a CLI eszközöket
+if [ "$(uname -s)" != "Darwin" ] && ! command -v mise >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/mise" ]; then
+  echo "==> mise telepítése ide: $HOME/.local/bin"
+  curl -fsSL https://mise.run | MISE_INSTALL_PATH="$HOME/.local/bin/mise" sh
+fi
+
 echo "==> chezmoi init --apply (forrás: $script_dir)"
 exec "$chezmoi" init --apply --source="$script_dir"

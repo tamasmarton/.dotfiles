@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Shell scriptek
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck (statikus scriptek)
+        run: shellcheck install.sh vscode/glacier-night/build.sh home/dot_local/bin/executable_brewfile
+
+  render:
+    name: chezmoi · ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: macOS personal, os: macos-latest, profile: personal, container: "" }
+          - { name: macOS work, os: macos-latest, profile: work, container: "" }
+          - { name: devcontainer (Linux), os: ubuntu-latest, profile: work, container: "1" }
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTFILES_PROFILE: ${{ matrix.profile }}
+      DOTFILES_EMAIL: ci@example.com
+      DEVCONTAINER: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Eszközök
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq zsh tmux shellcheck
+          else
+            brew install tmux shellcheck
+          fi
+
+      - name: chezmoi init + apply (ideiglenes home)
+        run: |
+          T="$RUNNER_TEMP/home"; mkdir -p "$T"
+          C=(--config="$RUNNER_TEMP/chezmoi.toml" --destination="$T" --cache="$RUNNER_TEMP/cache" \
+             --persistent-state="$RUNNER_TEMP/state.boltdb" --source="$GITHUB_WORKSPACE")
+          chezmoi init "${C[@]}" </dev/null
+          cat "$RUNNER_TEMP/chezmoi.toml"
+          chezmoi apply "${C[@]}" --exclude=scripts </dev/null
+          echo "--- második apply: nem lehet eltérés"
+          chezmoi diff "${C[@]}" --exclude=scripts,externals | tee "$RUNNER_TEMP/diff.txt"
+          test ! -s "$RUNNER_TEMP/diff.txt"
+          chezmoi managed "${C[@]}" --include=files | sort
+
+      - name: Generált fájlok ellenőrzése (JSON, TOML, YAML, zsh, Lua)
+        run: |
+          T="$RUNNER_TEMP/home"
+          python3 - "$T" <<'EOF'
+          import json, pathlib, sys, tomllib
+          root = pathlib.Path(sys.argv[1]); bad = 0
+          skip = ("/.local/share/", "/plugins/", "/.git/")
+          for p in root.rglob("*"):
+              s = str(p)
+              if not p.is_file() or any(x in s for x in skip):
+                  continue
+              try:
+                  if p.suffix == ".json": json.loads(p.read_text())
+                  elif p.suffix == ".toml": tomllib.loads(p.read_text())
+                  else: continue
+                  print("ok  ", p.relative_to(root))
+              except Exception as e:
+                  bad += 1; print("HIBA", p.relative_to(root), e)
+          sys.exit(1 if bad else 0)
+          EOF
+          for f in $(find "$T" -name '*.yml' -not -path '*/plugins/*'); do ruby -ryaml -e 'YAML.load_file(ARGV[0])' "$f" && echo "ok   $f"; done
+          for f in "$T/.zshenv" "$T"/.config/zsh/.zshrc "$T"/.config/zsh/*.zsh; do zsh -n "$f" && echo "ok   $f"; done
+
+      - name: Renderelt chezmoi scriptek (bash -n + shellcheck)
+        run: |
+          mkdir -p "$RUNNER_TEMP/scripts"
+          for f in home/.chezmoiscripts/*.tmpl home/dot_claude/executable_statusline.sh.tmpl; do
+            o="$RUNNER_TEMP/scripts/$(basename "${f%.tmpl}")"
+            chezmoi execute-template --config="$RUNNER_TEMP/chezmoi.toml" --source="$GITHUB_WORKSPACE" --file "$f" > "$o"
+            if [ -s "$o" ]; then bash -n "$o" && shellcheck -S warning "$o" && echo "ok   $(basename "$o")"; else echo "--   $(basename "$o") (ezen a profilon üres)"; fi
+          done
+
+      - name: zsh indulás (pluginok betöltődnek)
+        run: |
+          T="$RUNNER_TEMP/home"
+          out="$(env -u ZDOTDIR HOME="$T" TERM=xterm-256color zsh -i -c 'echo "fzftab=$+widgets[fzf-tab-complete] hss=$+widgets[history-substring-search-up] autosuggest=$+widgets[autosuggest-accept] compdef=$+functions[compdef]"' 2>&1 | tail -1)"
+          echo "$out"
+          [ "$out" = "fzftab=1 hss=1 autosuggest=1 compdef=1" ]
+
+      - name: tmux config betöltése
+        run: |
+          T="$RUNNER_TEMP/home"
+          HOME="$T" tmux -L ci -f /dev/null new-session -d -s ci
+          HOME="$T" tmux -L ci source-file "$T/.config/tmux/tmux.conf"
+          test "$(HOME="$T" tmux -L ci show -gv prefix)" = "C-a"
+          HOME="$T" tmux -L ci kill-server
+
+      - name: Brewfile (macOS)
+        if: runner.os == 'macOS'
+        run: brew bundle list --file="$RUNNER_TEMP/home/.config/homebrew/Brewfile" --all
+
+  themes:
+    name: Témák (VS Code, oh-my-pi)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: VS Code téma build + a commitolt JSON naprakész
+        run: |
+          vscode/glacier-night/build.sh
+          git diff --exit-code vscode/glacier-night/themes/ || { echo "A themes/*.json nem egyezik a palettával: futtasd a build.sh-t és commitold"; exit 1; }
+          unzip -l vscode/glacier-night/dist/*.vsix
+      - name: oh-my-pi téma a hivatalos sémához képest
+        run: |
+          chezmoi execute-template --source="$GITHUB_WORKSPACE" --file home/dot_omp/agent/themes/glacier-night.json.tmpl > "$RUNNER_TEMP/omp.json"
+          curl -fsSL https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/tui/src/theme/theme-schema.json -o "$RUNNER_TEMP/schema.json"
+          python3 - "$RUNNER_TEMP/omp.json" "$RUNNER_TEMP/schema.json" <<'EOF'
+          import json, sys
+          t = json.load(open(sys.argv[1])); s = json.load(open(sys.argv[2]))
+          colors = s["properties"]["colors"]
+          missing = [k for k in colors["required"] if k not in t["colors"]]
+          unknown = [k for k in t["colors"] if k not in colors["properties"]]
+          print("hiányzó:", missing, "ismeretlen:", unknown)
+          sys.exit(1 if missing or unknown else 0)
+          EOF
+
+  neovim:
+    name: Neovim (pluginok, indulás)
+    runs-on: ubuntu-latest
+    env:
+      DOTFILES_PROFILE: personal
+      DEVCONTAINER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Neovim + chezmoi + tree-sitter
+        run: |
+          curl -fsSL https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz | tar xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          npm install -g tree-sitter-cli
+      - name: Config kirakása
+        run: |
+          T="$RUNNER_TEMP/home"; mkdir -p "$T"
+          C=(--config="$RUNNER_TEMP/chezmoi.toml" --destination="$T" --cache="$RUNNER_TEMP/cache" \
+             --persistent-state="$RUNNER_TEMP/state.boltdb" --source="$GITHUB_WORKSPACE")
+          chezmoi init "${C[@]}" </dev/null
+          chezmoi apply "${C[@]}" --exclude=scripts,externals </dev/null
+      - name: Pluginok a lockfile szerint
+        run: |
+          T="$RUNNER_TEMP/home"
+          HOME="$T" XDG_CONFIG_HOME="$T/.config" nvim --headless "+Lazy! restore" +qa
+      - name: Indulás hibák nélkül
+        run: |
+          T="$RUNNER_TEMP/home"
+          cat > "$RUNNER_TEMP/check.lua" <<'EOF'
+          vim.wait(3000)
+          local errs = {}
+          for line in vim.api.nvim_exec2("messages", { output = true }).output:gmatch("[^\n]+") do
+            if line:match("[Ee]rror") or line:match("^E%d+:") then table.insert(errs, line) end
+          end
+          assert(vim.g.colors_name == "tokyonight-night", "colorscheme: " .. tostring(vim.g.colors_name))
+          for _, mod in ipairs({ "snacks", "blink.cmp", "conform", "lint", "gitsigns", "mason", "lualine" }) do
+            local ok, e = pcall(require, mod)
+            if not ok then table.insert(errs, mod .. ": " .. e) end
+          end
+          io.stdout:write(#errs == 0 and "ok\n" or table.concat(errs, "\n") .. "\n")
+          vim.cmd(#errs == 0 and "qa!" or "cq!")
+          EOF
+          HOME="$T" XDG_CONFIG_HOME="$T/.config" nvim --headless -c "luafile $RUNNER_TEMP/check.lua"

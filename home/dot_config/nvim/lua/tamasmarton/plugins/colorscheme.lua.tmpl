@@ -1,6 +1,7 @@
--- Tokyonight Night, a UI színek a glacier-night palettából (generálva: .chezmoidata/theme.toml)
--- A szintaxis színek a tokyonight-éi maradnak, csak a háttér, keretek és kiemelések jönnek a palettából.
+-- Tokyonight Night alapon glacier-night (generálva: .chezmoidata/theme.toml)
+-- A felület a [theme], a kódszínezés a [theme.syntax] palettából jön — ugyanaz, mint a VS Code Glacier Night témában.
 {{- $t := .theme }}
+{{- $s := .theme.syntax }}
 return {
   "folke/tokyonight.nvim",
   lazy = false,
@@ -61,8 +62,61 @@ return {
         hl.SnacksDashboardKey = { fg = p.cursor }
         hl.SnacksDashboardIcon = { fg = p.accent }
         hl.SnacksPickerMatch = { fg = p.accent, bold = true }
-        hl.NvimTreeFolderIcon = { fg = c.blue }
+        hl.NvimTreeFolderIcon = { fg = "{{ $t.ansi.cyan }}" }
         hl.NvimTreeRootFolder = { fg = p.accent, bold = true }
+
+        -- ── Kódszínezés: treesitter + LSP szemantikus tokenek ([theme.syntax]) ──
+        local s = {
+          comment = "{{ $s.comment }}", keyword = "{{ $s.keyword }}", storage = "{{ $s.storage }}",
+          func = "{{ $s.func }}", type = "{{ $s.type }}", string = "{{ $s.string }}",
+          number = "{{ $s.number }}", constant = "{{ $s.constant }}", variable = "{{ $s.variable }}",
+          parameter = "{{ $s.parameter }}", property = "{{ $s.property }}", operator = "{{ $s.operator }}",
+          tag = "{{ $s.tag }}", attribute = "{{ $s.attribute }}", decorator = "{{ $s.decorator }}",
+          builtin = "{{ $s.builtin }}", namespace = "{{ $s.namespace }}", regex = "{{ $s.regex }}",
+          escape = "{{ $s.escape }}",
+        }
+        local groups = {
+          comment = { "Comment", "@comment" },
+          keyword = {
+            "Keyword", "Statement", "Conditional", "Repeat", "Include", "Exception",
+            "@keyword", "@keyword.function", "@keyword.return", "@keyword.import", "@keyword.export",
+            "@keyword.conditional", "@keyword.repeat", "@keyword.exception", "@keyword.coroutine",
+            "@keyword.operator", "@keyword.directive",
+          },
+          storage = { "StorageClass", "@keyword.modifier", "@keyword.type", "@keyword.storage" },
+          func = {
+            "Function", "@function", "@function.call", "@function.method", "@function.method.call",
+            "@constructor", "@lsp.type.function", "@lsp.type.method",
+          },
+          type = {
+            "Type", "Structure", "@type", "@type.definition", "@type.builtin",
+            "@lsp.type.type", "@lsp.type.class", "@lsp.type.interface", "@lsp.type.enum", "@lsp.type.struct",
+          },
+          string = { "String", "@string", "@string.special", "@character" },
+          number = { "Number", "Boolean", "Float", "@number", "@number.float", "@boolean", "@constant.builtin" },
+          constant = { "Constant", "@constant", "@constant.macro", "@lsp.type.enumMember" },
+          variable = { "Identifier", "@variable", "@lsp.type.variable" },
+          parameter = { "@variable.parameter", "@lsp.type.parameter" },
+          property = { "@property", "@variable.member", "@field", "@lsp.type.property" },
+          operator = { "Operator", "Delimiter", "@operator", "@punctuation.delimiter", "@punctuation.bracket" },
+          tag = { "@tag", "@tag.builtin" },
+          attribute = { "@tag.attribute" },
+          decorator = { "@attribute", "@attribute.builtin", "@lsp.type.decorator", "@lsp.type.annotation", "PreProc" },
+          builtin = { "@variable.builtin", "@function.builtin", "@lsp.typemod.variable.defaultLibrary" },
+          namespace = { "@module", "@module.builtin", "@lsp.type.namespace" },
+          regex = { "@string.regexp" },
+          escape = { "@string.escape", "SpecialChar" },
+        }
+        local italic = { comment = true, parameter = true, builtin = true, attribute = true }
+        for role, names in pairs(groups) do
+          for _, name in ipairs(names) do
+            hl[name] = { fg = s[role], italic = italic[role] or nil }
+          end
+        end
+        hl["@punctuation.special"] = { fg = s.keyword }   -- ${} template literalban
+        hl["@markup.heading"] = { fg = p.accent, bold = true }
+        hl["@markup.link.url"] = { fg = "{{ $t.ansi.cyan }}", underline = true }
+        hl["@markup.raw"] = { fg = s.string }
       end,
     })
     vim.cmd.colorscheme("tokyonight")

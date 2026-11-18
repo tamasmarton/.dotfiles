@@ -1,0 +1,17 @@
+#!/bin/bash
+# Runtime-ok és eszközök telepítése a mise-zel (Node, pnpm, Go, Java; konténerben a CLI eszközök is).
+# Újrafut, ha a mise config változik.
+# mise config hash: {{ includeTemplate "dot_config/mise/config.toml.tmpl" . | sha256sum }}
+set -euo pipefail
+
+mise_bin="$(command -v mise || true)"
+for p in /opt/homebrew/bin/mise "$HOME/.local/bin/mise"; do
+  [[ -z "$mise_bin" && -x "$p" ]] && mise_bin="$p"
+done
+if [[ -z "$mise_bin" ]]; then
+  echo "mise nincs telepítve, runtime-ok kihagyva"
+  exit 0
+fi
+
+echo "==> mise install…"
+"$mise_bin" install --yes || echo "Figyelem: a mise install nem sikerült teljesen (futtasd: mise install)" >&2

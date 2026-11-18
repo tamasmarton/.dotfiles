@@ -6,6 +6,10 @@
 #
 # Runtime-ok (node, go, java, rust) NEM innen jönnek, hanem a mise-ből.
 
+# ── Tapek ───────────────────────────────────────────────────────────────
+tap "can1357/tap"               # oh-my-pi (omp)
+tap "nikitabobko/tap"           # AeroSpace
+
 # ── Alap ────────────────────────────────────────────────────────────────
 brew "git"
 brew "gh"
@@ -37,6 +41,10 @@ brew "lazygit"
 brew "lazydocker"
 brew "git-delta"                # diff pager
 
+# ── AI agent TUI-k ──────────────────────────────────────────────────────
+brew "herdr"                    # agent multiplexer (több Claude / omp session egy helyen)
+brew "can1357/tap/omp"          # oh-my-pi coding agent
+
 # ── Neovim ──────────────────────────────────────────────────────────────
 brew "neovim"
 brew "tree-sitter-cli"
@@ -44,7 +52,7 @@ brew "tree-sitter-cli"
 # ── Terminál és font ────────────────────────────────────────────────────
 cask "wezterm@nightly"
 cask "font-jetbrains-mono-nerd-font"
-# cask "ghostty"                # ha egyszer kipróbálnád
+cask "ghostty"                  # alternatív terminál (a config a WezTerm palettáját használja)
 
 # ── Közös appok ─────────────────────────────────────────────────────────
 cask "visual-studio-code"
@@ -53,6 +61,8 @@ cask "docker-desktop"
 cask "claude-code"
 cask "1password-cli"            # titkok a chezmoi sablonokba (op read)
 cask "stats"                    # menüsoros rendszerfigyelő
+cask "raycast"                  # Spotlight helyett: launcher, ablakkezelés, vágólap
+cask "nikitabobko/tap/aerospace" # tiling ablakkezelő (opcionális, alapból nem indul el)
 {{- if .isPersonal }}
 
 # ── Személyes ───────────────────────────────────────────────────────────

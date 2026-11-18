@@ -1,0 +1,22 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+  Claude Code — ~/.claude/settings.json
+  A Claude Code (és a herdr integráció) maga is írja ezt a fájlt, ezért a chezmoi NEM írja felül:
+  - mindig beállítja: statusLine (glacier-night)
+  - csak ha még nincs: theme, sandbox, push értesítések
+  - SOHA nem nyúl hozzá: env (tokenek!), permissions, hooks, mcpServers — ezek gépenként maradnak
+*/ -}}
+{{- $s := dict -}}
+{{- $current := get .chezmoi "stdin" | default "" -}}
+{{- if $current | trim -}}
+{{-   $s = $current | fromJsonc -}}
+{{- end -}}
+
+{{- $_ := set $s "$schema" "https://json.schemastore.org/claude-code-settings.json" -}}
+{{- $_ := set $s "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh" "padding" 0) -}}
+
+{{- if not (hasKey $s "theme") -}}{{- $_ := set $s "theme" "dark-daltonized" -}}{{- end -}}
+{{- if not (hasKey $s "sandbox") -}}{{- $_ := set $s "sandbox" (dict "enabled" true) -}}{{- end -}}
+{{- if not (hasKey $s "agentPushNotifEnabled") -}}{{- $_ := set $s "agentPushNotifEnabled" true -}}{{- end -}}
+
+{{- $s | toPrettyJson }}
