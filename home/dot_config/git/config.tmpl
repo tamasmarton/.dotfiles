@@ -3,13 +3,21 @@
 {{- $t := .theme }}
 {{- $sshKey := joinPath .chezmoi.homeDir ".ssh/id_ed25519.pub" }}
 
+{{- $signing := and .signCommits (stat $sshKey) }}
+{{- if or .name .email $signing }}
+
 [user]
+{{- if .name }}
 	name = {{ .name }}
+{{- end }}
 {{- if .email }}
 	email = {{ .email }}
 {{- end }}
-{{- if and .signCommits (stat $sshKey) }}
+{{- if $signing }}
 	signingkey = {{ $sshKey }}
+{{- end }}
+{{- end }}
+{{- if $signing }}
 
 [gpg]
 	format = ssh
@@ -141,10 +149,10 @@
 	required = true
 {{- end }}
 
-{{- if and .isWork .personalEmail }}
+{{- if and .personalGitDir .personalEmail }}
 
-# Céges gépen a személyes repók (~/Developer/personal/…) a személyes emailt kapják
-[includeIf "gitdir:~/Developer/personal/"]
+# A személyes repók ({{ .personalGitDir }}…) a személyes emailt kapják (profil: {{ .profile }})
+[includeIf "gitdir:{{ .personalGitDir | trimSuffix "/" }}/"]
 	path = ~/.config/git/personal
 {{- end }}
 

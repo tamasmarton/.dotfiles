@@ -62,6 +62,16 @@ jobs:
           test ! -s "$RUNNER_TEMP/diff.txt"
           chezmoi managed "${C[@]}" --include=files | sort
 
+      - name: env fájl és profil kiválasztás
+        run: |
+          T="$RUNNER_TEMP/envhome"; mkdir -p "$T"
+          printf 'profile = "work"\nname = "CI User"\nemail = "ci-env@example.com"\npersonalEmail = "me@example.com"\n' > "$RUNNER_TEMP/env.toml"
+          unset DOTFILES_PROFILE DOTFILES_EMAIL
+          DOTFILES_ENV_FILE="$RUNNER_TEMP/env.toml" chezmoi init --config="$RUNNER_TEMP/envc.toml" --source="$GITHUB_WORKSPACE" </dev/null
+          chezmoi data --config="$RUNNER_TEMP/envc.toml" --source="$GITHUB_WORKSPACE" --format=json | jq -e '.profile=="work" and .name=="CI User" and .email=="ci-env@example.com" and .personalGitDir!=""'
+          # ismeretlen profil: érthető hiba, nem összeomlás
+          ! DOTFILES_PROFILE=nincs-ilyen chezmoi init --config="$RUNNER_TEMP/envc2.toml" --source="$GITHUB_WORKSPACE" </dev/null
+
       - name: Generált fájlok ellenőrzése (JSON, TOML, YAML, zsh, Lua)
         run: |
           T="$RUNNER_TEMP/home"

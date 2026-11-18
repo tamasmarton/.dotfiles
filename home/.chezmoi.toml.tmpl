@@ -1,17 +1,20 @@
 {{- /*
-  Gép profil. `chezmoi init` egyszer kérdez, utána a ~/.config/chezmoi/chezmoi.toml-ban marad.
+  Gép profil és gépspecifikus adatok. `chezmoi init` egyszer kérdez, utána a ~/.config/chezmoi/chezmoi.toml-ban marad.
   Újrakérdezés: chezmoi init --data=false
+
+  Honnan jön egy érték (az első találat nyer):
+    1. env fájl:  ~/.config/dotfiles/env.toml  (példa: env.example.toml; DOTFILES_ENV_FILE-lal áthelyezhető)
+    2. környezeti változó:  DOTFILES_PROFILE, DOTFILES_NAME, DOTFILES_EMAIL, DOTFILES_PERSONAL_EMAIL,
+                            DOTFILES_SIGN = true | false, DOTFILES_CONTAINER = 1 | 0 (konténer felismerés felülírása)
+    3. korábbi válasz (nem interaktív futásnál) / kérdés (interaktív futásnál)
+
+  A profilok a profiles/<név>.toml fájlok; az első kérdés (ha az env fájl nem adja meg) ezek közül választ.
+  Személyes adat (név, email) a repóban nincs: csak az env fájlban vagy a kérdésre adott válaszban.
 
   Gép típusok (automatikusan felismerve):
     Mac         → minden: GUI appok, Homebrew, runtime-ok (gui = true)
     Linux host  → headless terminál config SSH-hoz: apt alapcsomagok, CLI eszközök mise-ből, zsh alap shell
     konténer    → devcontainer / Codespaces: csak a terminál config, runtime-ot a projekt image adja
-
-  Nem interaktív futásnál (devcontainer, CI) környezeti változókból jön:
-    DOTFILES_PROFILE = personal | work   (alap: personal)
-    DOTFILES_NAME, DOTFILES_EMAIL, DOTFILES_PERSONAL_EMAIL
-    DOTFILES_SIGN = true | false        (alap: false)
-    DOTFILES_CONTAINER = 1 | 0          (felülírja a konténer felismerést, pl. teszteléshez)
 */ -}}
 
 {{- $interactive := stdinIsATTY -}}
@@ -33,26 +36,64 @@
 {{-   $isDebian = or (eq (get $os "id" | default "") "debian" "ubuntu") (contains "debian" (get $os "idLike" | default "")) -}}
 {{- end -}}
 
-{{- $profile := env "DOTFILES_PROFILE" | default "personal" -}}
-{{- $name := env "DOTFILES_NAME" | default "Tamas Marton" -}}
-{{- $email := env "DOTFILES_EMAIL" | default "" -}}
-{{- $personalEmail := env "DOTFILES_PERSONAL_EMAIL" | default "" -}}
-{{- $signCommits := eq (env "DOTFILES_SIGN" | default "false") "true" -}}
+{{- /* 1. env fájl */ -}}
+{{- $envFile := env "DOTFILES_ENV_FILE" | default (joinPath (env "XDG_CONFIG_HOME" | default (joinPath .chezmoi.homeDir ".config")) "dotfiles" "env.toml") -}}
+{{- $e := dict -}}
+{{- if stat $envFile -}}
+{{-   $e = include $envFile | fromToml -}}
+{{- end -}}
 
-{{- if $interactive -}}
-{{-   $profile = promptChoiceOnce . "profile" "Gép profil" (list "personal" "work") $profile -}}
-{{-   $name = promptStringOnce . "name" "Git név" $name -}}
-{{-   $email = promptStringOnce . "email" "Git email" $email -}}
-{{-   if eq $profile "work" -}}
-{{-     $personalEmail = promptStringOnce . "personalEmail" "Személyes git email a ~/Developer/personal alatti repókhoz (üres = nincs)" $personalEmail -}}
+{{- /* Elérhető profilok: profiles/*.toml */ -}}
+{{- $profiles := list -}}
+{{- $titles := list -}}
+{{- range $f := glob (joinPath .chezmoi.workingTree "profiles" "*.toml") -}}
+{{-   $pn := base $f | trimSuffix ".toml" -}}
+{{-   $profiles = append $profiles $pn -}}
+{{-   $titles = append $titles (printf "%s = %s" $pn ((include $f | fromToml).title | default $pn)) -}}
+{{- end -}}
+
+{{- /* Profil: az első kérdés */ -}}
+{{- $profile := get $e "profile" | default (env "DOTFILES_PROFILE") -}}
+{{- if not $profile -}}
+{{-   if $interactive -}}
+{{-     $profile = promptChoiceOnce . "profile" (printf "Gép profil (%s)" (join "; " $titles)) $profiles "personal" -}}
+{{-   else -}}
+{{-     $profile = get . "profile" | default "personal" -}}
 {{-   end -}}
+{{- end -}}
+{{- if not (has $profile $profiles) -}}
+{{-   fail (printf "Ismeretlen profil: %q (elérhető: %s)" $profile (join ", " $profiles)) -}}
+{{- end -}}
+{{- $pc := include (joinPath .chezmoi.workingTree "profiles" (printf "%s.toml" $profile)) | fromToml -}}
+
+{{- /* Git azonosság */ -}}
+{{- $name := get $e "name" | default (env "DOTFILES_NAME") -}}
+{{- if not $name -}}
+{{-   if $interactive -}}{{ $name = promptStringOnce . "name" "Git név" (get . "name" | default "") -}}
+{{-   else -}}{{ $name = get . "name" | default "" -}}{{- end -}}
+{{- end -}}
+
+{{- $email := get $e "email" | default (env "DOTFILES_EMAIL") -}}
+{{- if not $email -}}
+{{-   if $interactive -}}{{ $email = promptStringOnce . "email" "Git email" (get . "email" | default "") -}}
+{{-   else -}}{{ $email = get . "email" | default "" -}}{{- end -}}
+{{- end -}}
+
+{{- $personalEmail := get $e "personalEmail" | default (env "DOTFILES_PERSONAL_EMAIL") -}}
+{{- if and (not $personalEmail) (get $pc "askPersonalEmail") -}}
+{{-   if $interactive -}}{{ $personalEmail = promptStringOnce . "personalEmail" (printf "Személyes git email a %s alatti repókhoz (üres = nincs)" (get $pc "personalGitDir")) (get . "personalEmail" | default "") -}}
+{{-   else -}}{{ $personalEmail = get . "personalEmail" | default "" -}}{{- end -}}
+{{- end -}}
+
+{{- $signCommits := get $pc "signCommits" | default false -}}
+{{- if hasKey $e "signCommits" -}}
+{{-   $signCommits = get $e "signCommits" -}}
+{{- else if env "DOTFILES_SIGN" -}}
+{{-   $signCommits = eq (env "DOTFILES_SIGN") "true" -}}
+{{- else if $interactive -}}
 {{-   $signCommits = promptBoolOnce . "signCommits" "Commitok aláírása SSH kulccsal (~/.ssh/id_ed25519.pub)" $signCommits -}}
-{{- else -}}
-{{-   $profile = get . "profile" | default $profile -}}
-{{-   $name = get . "name" | default $name -}}
-{{-   $email = get . "email" | default $email -}}
-{{-   $personalEmail = get . "personalEmail" | default $personalEmail -}}
-{{-   if hasKey . "signCommits" -}}{{ $signCommits = .signCommits }}{{- end -}}
+{{- else if hasKey . "signCommits" -}}
+{{-   $signCommits = .signCommits -}}
 {{- end -}}
 
 # Generálta: home/.chezmoi.toml.tmpl — ne kézzel szerkeszd, hanem `chezmoi init`-tel.
@@ -60,6 +101,9 @@ sourceDir = {{ .chezmoi.workingTree | quote }}
 
 [data]
     profile = {{ $profile | quote }}
+    profileTitle = {{ (get $pc "title" | default $profile) | quote }}
+    # Ebben a mappában a repók a személyes git emailt kapják (üres = nincs)
+    personalGitDir = {{ (get $pc "personalGitDir" | default "") | quote }}
     name = {{ $name | quote }}
     email = {{ $email | quote }}
     personalEmail = {{ $personalEmail | quote }}

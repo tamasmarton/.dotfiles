@@ -1,0 +1,11 @@
+# Profil: work — céges gép. Nincs benne személyes adat, ez a repóba kerül.
+# Különbségek: ~/.config/zsh/work.zsh (céges CA, proxy), céges Brewfile rész,
+# és a személyes repók külön git emailt kapnak.
+
+title = "céges gép"
+description = "Céges CA/proxy beállítás, külön személyes git email, nincs személyes app."
+
+signCommits = false
+
+askPersonalEmail = true
+personalGitDir = "~/Developer/personal/"

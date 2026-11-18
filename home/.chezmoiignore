@@ -14,7 +14,7 @@ Library
 .config/zsh/work.zsh
 {{ end }}
 
-{{ if not (and .isWork .personalEmail) }}
+{{ if not (and .personalGitDir .personalEmail) }}
 .config/git/personal
 {{ end }}
 

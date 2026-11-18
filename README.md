@@ -18,7 +18,7 @@ git clone https://github.com/tamasmarton/.dotfiles.git ~/Developer/.dotfiles
 ~/Developer/.dotfiles/install.sh
 ```
 
-Az `install.sh` feltelepíti a chezmoit, megkérdezi a gép profilját (`personal` / `work`), a Git nevet és emailt, majd:
+Az `install.sh` feltelepíti a chezmoit. Az **első kérdés a gép profilja** (a [`profiles/`](profiles/) mappa fájljai közül: `personal` vagy `work`), utána a Git név és email. Ha előre létrehozol egy [env fájlt](#profilok-és-gépspecifikus-adatok), nem kérdez semmit. Majd:
 
 1. telepíti a Homebrew-t, ha még nincs,
 2. kirakja a configokat a `$HOME`-ba,
@@ -63,13 +63,13 @@ A VS Code beállításaiba ezt a chezmoi magától beírja, így minden devconta
 ```
 
 **Működés konténerben:**
-- Nem kérdez, hanem környezeti változókból dolgozik: `DOTFILES_PROFILE`, `DOTFILES_NAME`, `DOTFILES_EMAIL`.
+- Nem kérdez, hanem az env fájlból vagy környezeti változókból dolgozik: `DOTFILES_PROFILE`, `DOTFILES_NAME`, `DOTFILES_EMAIL`, `DOTFILES_ENV_FILE`.
 - **Kimarad:** a GUI-s részek és a runtime-ok (Node/Go/Java), mert azokat a projekt image adja.
 - **Települ:** a terminál config, a CLI eszközök és a Claude Code CLI.
 
 ### Céges profil
 
-- **Git email:** a fő email a céges. Ha az init során megadsz személyes emailt, a `~/Developer/personal/` alatti repók automatikusan azt kapják (`includeIf`).
+- **Git email:** a fő email a céges. Ha megadsz személyes emailt (env fájl vagy init kérdés), a `personalGitDir` (alapból `~/Developer/personal/`, [`profiles/work.toml`](profiles/work.toml)) alatti repók automatikusan azt kapják (`includeIf`).
 - **Céges CA tanúsítvány:** ha a cég TLS-t bontó proxyt használ, tedd ide: `~/.config/certs/corp-ca.pem`. A Node automatikusan használja; a git, curl és Java beállítása a [`work.zsh`](home/dot_config/zsh/work.zsh.tmpl)-ben van leírva.
 - **Proxy és titkok:** a `work.zsh`-ban (titkokat 1Passwordből, `onepasswordRead`).
 - **Céges csomagok:** a Brewfile `{{ if .isWork }}` blokkjába.
@@ -116,12 +116,14 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 ├── .github/workflows/ci.yml    CI: minden profil renderelése és ellenőrzése, Neovim, témák, E2E
 ├── test/e2e/                   végponttól végpontig tesztek (Debian host, devcontainer)
 ├── nvim/lazy-lock.json         Neovim plugin verziók (a lazy.nvim ide írja)
+├── profiles/                   profilok (personal.toml, work.toml), személyes adat nélkül
+├── env.example.toml            minta a ~/.config/dotfiles/env.toml-hoz (gépenkénti név, email)
 ├── themes/                     színpaletták (darker.toml, nightfrost.toml, …)
 ├── theme                       paletta váltó: ./theme use <név>
 ├── vscode/tm-themes/           saját VS Code téma csomag (build.sh → .vsix)
 ├── .chezmoiroot                → a chezmoi forrás a home/ mappa
 └── home/
-    ├── .chezmoi.toml.tmpl      profil kérdések → gépenkénti adatok
+    ├── .chezmoi.toml.tmpl      profil + env fájl + kérdések → gépenkénti adatok
     ├── .chezmoidata/theme.toml symlink az aktív palettára (themes/*.toml)
     ├── .chezmoitemplates/      VS Code téma sablon
     ├── .chezmoiignore          profil szerint kihagyott fájlok
@@ -292,11 +294,36 @@ Josean-alapú struktúra és billentyűzés, modern alapokon: lazy.nvim, natív 
 | `~/.config/wezterm/local.lua` | pl. más fontméret: `return function(c) c.font_size = 14 end` |
 | `~/.config/tmux/local.conf` | extra tmux beállítások |
 
-### Profilok
+### Profilok és gépspecifikus adatok
 
-| Adat | Jelentés |
+**Profilok** (`profiles/*.toml`, a repóban, személyes adat nélkül): minden fájl egy profil. A `chezmoi init` első kérdése ezek közül választ, a fájlnév a profil neve.
+
+| Profil | Mit jelent |
 |---|---|
-| `.profile` | `personal` vagy `work` |
+| [`personal`](profiles/personal.toml) | személyes gép: minden app, személyes kiegészítők (Brave, Spotify, VLC …) |
+| [`work`](profiles/work.toml) | céges gép: `work.zsh` (CA, proxy), céges Brewfile rész, külön személyes git email a `~/Developer/personal/` repókhoz |
+
+Egy profilfájl kulcsai: `title`, `description`, `signCommits` (alapérték), `askPersonalEmail`, `personalGitDir`. Új profil: másold le valamelyiket `profiles/<név>.toml` néven.
+
+**Env fájl** (`~/.config/dotfiles/env.toml`, a repón kívül, soha nem kerül verziókezelésbe): a név, email és a profil gépenkénti értékei. A repóban csak a minta van: [`env.example.toml`](env.example.toml).
+
+```bash
+mkdir -p ~/.config/dotfiles
+cp ~/Developer/.dotfiles/env.example.toml ~/.config/dotfiles/env.toml
+$EDITOR ~/.config/dotfiles/env.toml
+chezmoi init && chezmoi apply
+```
+
+Egy érték forrása, az első találat nyer: **env fájl → `DOTFILES_*` környezeti változó → korábbi chezmoi válasz → kérdés**. Az env fájl tehát egy rossz, korábban megadott választ is felülír. Más helyről is betölthető: `DOTFILES_ENV_FILE=/path/env.toml`. Ha a név és az email üres, a git config nem kap `[user]` blokkot (devcontainerben a VS Code adja át a hoszt azonosságát).
+
+Rossz válasz javítása (pl. rossz név): vagy írd be az env fájlba, vagy `chezmoi init --data=false`, ami újrakérdez.
+
+| Adat (sablonban) | Jelentés |
+|---|---|
+| `.profile` | a választott profil neve (`personal`, `work`, …) |
+| `.isWork` / `.isPersonal` | rövidítés a két alap profilra |
+| `.name`, `.email`, `.personalEmail`, `.signCommits` | az env fájlból, változóból vagy kérdésből |
+| `.personalGitDir` | a profilfájlból: ebben a mappában a személyes email érvényes |
 | `.isContainer` | automatikusan felismert devcontainer, Codespaces vagy Docker |
 | `.gui` | valódi Mac (nem konténer): casks, fontok, WezTerm |
 

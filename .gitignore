@@ -2,3 +2,7 @@
 .claude/
 nvim.log
 vscode/*/dist/
+
+# Gépspecifikus env fájl (csak a ~/.config/dotfiles/env.toml a valódi, ide ne másold)
+/env.toml
+.env

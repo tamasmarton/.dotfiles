@@ -5,7 +5,8 @@
 #   Devcontainer:  VS Code "dotfiles.repository" beállítás → automatikusan lefuttatja
 #
 # Nem interaktív futásnál (devcontainer) a profil környezeti változókból jön:
-#   DOTFILES_PROFILE=work DOTFILES_EMAIL=... ./install.sh
+#   DOTFILES_PROFILE=work DOTFILES_NAME=... DOTFILES_EMAIL=... ./install.sh
+# vagy egy env fájllal: ~/.config/dotfiles/env.toml (példa: env.example.toml)
 set -eu
 
 script_dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
