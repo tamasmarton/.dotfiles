@@ -8,6 +8,13 @@ macOS fejlesztői környezet [chezmoi](https://www.chezmoi.io/)-val, saját és 
 
 **Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját Borealis csomag) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · saját paletták (darker, nightfrost, bluehour) · JetBrainsMono Nerd Font
 
+<p align="center">
+  <img src="docs/img/terminal-darker.png" alt="A darker paletta a terminálban: Starship prompt, eza, bat szintaxiskiemeléssel, git log, tmux, JetBrainsMono Nerd Font" width="100%">
+</p>
+
+<sub>A `darker` paletta: zsh + Starship, tmux, eza, bat, git, JetBrainsMono Nerd Font Mono. A kép generátora: [`docs/screenshots/render.py`](docs/screenshots/render.py) (`render.py darker`, vagy `--serve`, ha nincs GUI session a böngészőnek).</sub>
+
+
 ## Telepítés
 
 ### Új Mac
