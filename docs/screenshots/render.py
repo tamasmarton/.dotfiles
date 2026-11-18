@@ -162,7 +162,7 @@ def build(name, t):
     L.append(c.span(muted, "       │ ") + c.span(fg, "File: ") + c.span(fg, "src/server.ts", bold=True))
     L.append(c.span(muted, "───────┼" + "─" * 70))
     for n, line in enumerate(CODE, 1):
-        L.append(c.span(muted, str(n).rjust(5) + "   │ ") + highlight_ts(c, line))
+        L.append(c.span(muted, str(n).rjust(5) + "  │ ") + highlight_ts(c, line))
     L.append(c.span(muted, "───────┴" + "─" * 70))
     L.append("")
 
