@@ -6,7 +6,7 @@ macOS fejlesztői környezet [chezmoi](https://www.chezmoi.io/)-val, saját és 
 
 **Gépek:** Mac (személyes, céges) · headless Debian/Ubuntu (SSH) · devcontainer
 
-**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját TM Themes csomag) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · saját paletták (darker, nightfrost, bluehour) · JetBrainsMono Nerd Font
+**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját Borealis csomag) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · saját paletták (darker, nightfrost, bluehour) · JetBrainsMono Nerd Font
 
 ## Telepítés
 
@@ -24,7 +24,7 @@ Az `install.sh` feltelepíti a chezmoit, megkérdezi a gép profilját (`persona
 2. kirakja a configokat a `$HOME`-ba,
 3. a `Brewfile` alapján telepíti a csomagokat,
 4. `mise install`: Node, pnpm, Go, Java,
-5. megépíti és telepíti a TM Themes VS Code csomagot (minden paletta egy téma),
+5. megépíti és telepíti a Borealis VS Code csomagot (minden paletta egy téma),
 6. bekapcsolja a herdr integrációt a Claude Code-hoz és az omp-hoz,
 7. beállítja a macOS defaults-ot (billentyűismétlés, Finder, Dock, képernyőképek).
 
@@ -156,21 +156,29 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 
 ### Téma
 
-Minden szín egy **palettából** jön. A paletták a [`themes/`](themes/) mappában vannak, egy fájl egy téma. Mindegyik saját néven fut mindenhol (VS Code, omp, btop):
+Minden szín egy **palettából** jön. A paletták a [`themes/`](themes/) mappában vannak, egy fájl egy téma. A témacsalád közös neve **Borealis** ([`brand.toml`](home/.chezmoidata/brand.toml)): a VS Code választóban `Borealis · <Paletta>` néven látszanak, így azonnal látod, melyik a tiéd. Az omp és a btop a paletta nevét használja.
 
-| Paletta | Jellemző |
-|---|---|
-| `darker` | az eredeti: nagyon sötét, kontrasztos (≈ 14,6:1) |
-| `nightfrost` | kékesfekete, kicsit visszafogottabb (≈ 10,5:1) |
-| `bluehour` | a VS Code Dark 2026 felépítése (semleges sötét szerkesztő, világosabb panelek, visszafogott kék accent), Tokyo Night-szerű kódszínekkel (≈ 9,5:1) |
+| Paletta | VS Code neve | Jellemző |
+|---|---|---|
+| `darker` | Borealis · Darker | az **eredeti**: nagyon sötét, kontrasztos (≈ 14,6:1). A `77d6c1a` commitban készült, a színei azonosak, ne írd át |
+| `nightfrost` | Borealis · Nightfrost | kékesfekete, kicsit visszafogottabb (≈ 10,5:1) |
+| `bluehour` | Borealis · Bluehour | a VS Code Dark 2026 felépítése (semleges sötét szerkesztő, világosabb panelek, visszafogott kék accent), Tokyo Night-szerű kódszínekkel (≈ 9,5:1) |
+
+#### Téma váltása
 
 ```bash
 ./theme                  # lista, az aktív *-gal
-./theme use nightfrost   # váltás (a home/.chezmoidata/theme.toml symlinket állítja át)
-chezmoi apply            # életbe léptetés
+./theme use nightfrost   # az aktív paletta átállítása (a home/.chezmoidata/theme.toml symlink)
+chezmoi apply            # életbe léptetés: minden alkalmazás újragenerálódik
 ```
 
-Új téma: másold le valamelyik `.toml`-t `themes/<új-név>.toml` néven, írd át a `name`-et és a színeket, majd `./theme use <új-név>`. Egy szín átírása után is elég a `chezmoi apply`.
+Utána a futó programok újratöltése: VS Code `Developer: Reload Window`, Ghostty a konfig újratöltése, tmuxban `source-file ~/.config/tmux/tmux.conf`, a WezTerm magától újratölt, az omp új sessionben veszi át.
+
+**Ideiglenes váltás apply nélkül** (a következő `chezmoi apply` visszaállítja az aktívra):
+
+- VS Code: `Cmd+K Cmd+T`, majd a Borealis témák közül választasz
+- omp: `/settings` → theme, vagy `omp config set theme.dark bluehour`
+- btop: a `t` billentyű a menüben
 
 **Melyik alkalmazás melyik témát tölti be**
 
@@ -181,11 +189,19 @@ chezmoi apply            # életbe léptetés
 | oh-my-pi (`omp`) | aktív paletta | `omp = "nightfrost"` ugyanott |
 | btop | aktív paletta | `btop = "darker"` ugyanott |
 
-Az üres érték az aktív palettát jelenti. A `chezmoi apply` minden futásnál visszaállítja a VS Code és az omp témát erre; ha csak ideiglenesen váltasz (VS Code: `Cmd+K Cmd+T`, omp: `/settings`), az a következő apply-ig él. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
+Az üres érték az aktív palettát jelenti. Példa: a terminál legyen `darker`, a VS Code pedig `bluehour`:
+
+```bash
+./theme use darker
+sed -i '' 's/^vscode = .*/vscode = "bluehour"/' home/.chezmoidata/theme-overrides.toml
+chezmoi apply
+```
+
+**Új paletta:** másold le valamelyik `.toml`-t `themes/<új-név>.toml` néven, írd át a `name`-et és a színeket, majd `./theme use <új-név>`. Egy meglévő szín átírása után is elég a `chezmoi apply`. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
 
 ### VS Code
 
-- **Téma:** saját [TM Themes](vscode/tm-themes/) csomag: minden paletta egy téma (Darker, Nightfrost, Bluehour). A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak, és az aktív palettát állítja be színtémának.
+- **Téma:** saját [Borealis](vscode/tm-themes/) csomag: minden paletta egy téma (Borealis · Darker, Nightfrost, Bluehour). A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak, és az aktív palettát állítja be színtémának.
 - **Fájlikonok:** Material Icon Theme (a Brewfile telepíti), a mappák cyan, az általános fájlok tompa színnel.
 - **Beállítások:** a chezmoi a `settings.json`-ban csak a témát, a fontot (JetBrainsMono Nerd Font) és néhány megjelenési beállítást írja. A többi beállításod megmarad.
 

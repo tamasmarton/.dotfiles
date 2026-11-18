@@ -1,6 +1,6 @@
 {{- if .gui -}}
 #!/bin/bash
-# TM Themes VS Code csomag: újragenerálás és telepítés, ha egy paletta, a sablon vagy a csomag változik.
+# Borealis VS Code csomag: újragenerálás és telepítés, ha egy paletta, a sablon vagy a csomag változik.
 # téma hash: {{ includeTemplate "vscode-theme.json" . | sha256sum }}
 {{- range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") }}
 # paletta {{ base $f }}: {{ include $f | sha256sum }}
@@ -16,7 +16,7 @@ rm -f "$pkg"/themes/*-color-theme.json
 {{ range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") -}}
 {{ $p := include $f | fromToml -}}
 cat >"$pkg/themes/{{ base $f | trimSuffix ".toml" }}-color-theme.json" <<'TM_THEME_EOF'
-{{ includeTemplate "vscode-theme.json" (dict "theme" $p.theme) | trim }}
+{{ includeTemplate "vscode-theme.json" (dict "theme" $p.theme "brand" $.brand) | trim }}
 TM_THEME_EOF
 {{ end -}}
 
@@ -26,6 +26,6 @@ code_bin="$(command -v code || true)"
   && code_bin="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
 [ -n "$code_bin" ] && "$code_bin" --uninstall-extension tamasmarton.glacier-night >/dev/null 2>&1 || true
 
-echo "==> TM Themes VS Code csomag építése és telepítése…"
+echo "==> Borealis VS Code csomag építése és telepítése…"
 "$pkg/build.sh" --skip-render --install || echo "Figyelem: a VS Code téma telepítése nem sikerült (a többi beállítás rendben)." >&2
 {{ end -}}

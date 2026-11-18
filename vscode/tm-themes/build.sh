@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# TM Themes VS Code csomag: témánként egy JSON a themes/*.toml palettákból + .vsix (+ telepítés).
+# Borealis VS Code csomag: témánként egy JSON a themes/*.toml palettákból + .vsix (+ telepítés).
 #
 #   ./build.sh                 téma JSON újragenerálása (chezmoi) + dist/*.vsix
 #   ./build.sh --install       …és telepítés a VS Code-ba
@@ -28,7 +28,7 @@ if $render; then
   for palette in "$repo"/themes/*.toml; do
     pname="$(basename "$palette" .toml)"
     chezmoi execute-template --source="$repo" \
-      "{{ \$p := include \"$palette\" | fromToml }}{{ template \"vscode-theme.json\" (dict \"theme\" \$p.theme) }}" \
+      "{{ \$p := include \"$palette\" | fromToml }}{{ template \"vscode-theme.json\" (dict \"theme\" \$p.theme \"brand\" .brand) }}" \
       >"themes/$pname-color-theme.json"
   done
 fi
@@ -76,7 +76,7 @@ cat >"$stage/extension.vsixmanifest" <<EOF
   <Metadata>
     <Identity Language="en-US" Id="$name" Version="$version" Publisher="$publisher"/>
     <DisplayName>$display</DisplayName>
-    <Description xml:space="preserve">TM Themes color themes</Description>
+    <Description xml:space="preserve">Borealis color themes</Description>
     <Tags>theme,color-theme,dark</Tags>
     <Categories>Themes</Categories>
     <GalleryFlags>Public</GalleryFlags>

@@ -1,6 +1,6 @@
 {
   "name": "tm-themes",
-  "displayName": "TM Themes",
+  "displayName": "Borealis Themes",
   "description": "Own dark color themes (darker, nightfrost, \u2026) generated from the dotfiles palettes in themes/*.toml.",
   "version": "0.1.0",
   "publisher": "tamasmarton",
@@ -27,17 +27,17 @@
   "contributes": {
     "themes": [
       {
-        "label": "Bluehour",
+        "label": "Borealis \u00b7 Bluehour",
         "uiTheme": "vs-dark",
         "path": "./themes/bluehour-color-theme.json"
       },
       {
-        "label": "Darker",
+        "label": "Borealis \u00b7 Darker",
         "uiTheme": "vs-dark",
         "path": "./themes/darker-color-theme.json"
       },
       {
-        "label": "Nightfrost",
+        "label": "Borealis \u00b7 Nightfrost",
         "uiTheme": "vs-dark",
         "path": "./themes/nightfrost-color-theme.json"
       }

@@ -4,7 +4,7 @@
 {{- $gutter := $t.gutter -}}
 {
   "$schema": "vscode://schemas/color-theme",
-  "name": "{{ $t.name | title }}",
+  "name": "{{ .brand }} · {{ $t.name | title }}",
   "type": "dark",
   "semanticHighlighting": true,
   "colors": {
