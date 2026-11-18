@@ -1,0 +1,31 @@
+#!/bin/bash
+# omp és btop témák: minden paletta a saját nevén (themes/<név>.toml → <név>), és az aktív beállítása.
+# aktív: {{ .theme.name }}
+{{- range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") }}
+# paletta {{ base $f }}: {{ include $f | sha256sum }}
+{{- end }}
+# sablonok: {{ includeTemplate "omp-theme.json" . | sha256sum }} {{ includeTemplate "btop-theme.theme" . | sha256sum }}
+set -euo pipefail
+
+omp_dir="${PI_CODING_AGENT_DIR:-$HOME/.omp/agent}/themes"
+btop_dir="${XDG_CONFIG_HOME:-$HOME/.config}/btop/themes"
+mkdir -p "$omp_dir" "$btop_dir"
+
+# a régi nevű fájlok
+rm -f "$omp_dir/glacier-night.json" "$btop_dir/glacier-night.theme"
+
+{{ range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") -}}
+{{ $p := include $f | fromToml -}}
+cat >"$omp_dir/{{ $p.theme.name }}.json" <<'TM_THEME_EOF'
+{{ includeTemplate "omp-theme.json" (dict "theme" $p.theme) | trim }}
+TM_THEME_EOF
+cat >"$btop_dir/{{ $p.theme.name }}.theme" <<'TM_THEME_EOF'
+{{ includeTemplate "btop-theme.theme" (dict "theme" $p.theme) | trim }}
+TM_THEME_EOF
+{{ end -}}
+
+# btop: az aktív téma (a btop.conf-ot a btop maga írja, ezért csak a color_theme sort cseréljük)
+btop_conf="${XDG_CONFIG_HOME:-$HOME/.config}/btop/btop.conf"
+if [ -f "$btop_conf" ]; then
+  sed -i.bak 's/^color_theme = .*/color_theme = "{{ .theme.name }}"/' "$btop_conf" && rm -f "$btop_conf.bak"
+fi

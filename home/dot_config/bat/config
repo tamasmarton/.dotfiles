@@ -1,4 +1,4 @@
-# bat — az "ansi" téma a terminál 16 színét használja, így automatikusan glacier-night
+# bat — az "ansi" téma a terminál 16 színét használja, így automatikusan az aktív paletta (themes/*.toml)
 --theme="ansi"
 --style="numbers,changes,header"
 --italic-text=always

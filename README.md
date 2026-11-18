@@ -6,7 +6,7 @@ macOS fejlesztői környezet [chezmoi](https://www.chezmoi.io/)-val, saját és 
 
 **Gépek:** Mac (személyes, céges) · headless Debian/Ubuntu (SSH) · devcontainer
 
-**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját Glacier Night téma) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · glacier-night téma · JetBrainsMono Nerd Font
+**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját TM Themes csomag) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · saját paletták (darker, nightfrost) · JetBrainsMono Nerd Font
 
 ## Telepítés
 
@@ -24,7 +24,7 @@ Az `install.sh` feltelepíti a chezmoit, megkérdezi a gép profilját (`persona
 2. kirakja a configokat a `$HOME`-ba,
 3. a `Brewfile` alapján telepíti a csomagokat,
 4. `mise install`: Node, pnpm, Go, Java,
-5. megépíti és telepíti a Glacier Night VS Code témát,
+5. megépíti és telepíti a TM Themes VS Code csomagot (minden paletta egy téma),
 6. bekapcsolja a herdr integrációt a Claude Code-hoz és az omp-hoz,
 7. beállítja a macOS defaults-ot (billentyűismétlés, Finder, Dock, képernyőképek).
 
@@ -116,11 +116,13 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 ├── .github/workflows/ci.yml    CI: minden profil renderelése és ellenőrzése, Neovim, témák, E2E
 ├── test/e2e/                   végponttól végpontig tesztek (Debian host, devcontainer)
 ├── nvim/lazy-lock.json         Neovim plugin verziók (a lazy.nvim ide írja)
-├── vscode/glacier-night/       saját VS Code téma csomag (build.sh → .vsix)
+├── themes/                     színpaletták (darker.toml, nightfrost.toml, …)
+├── theme                       paletta váltó: ./theme use <név>
+├── vscode/tm-themes/           saját VS Code téma csomag (build.sh → .vsix)
 ├── .chezmoiroot                → a chezmoi forrás a home/ mappa
 └── home/
     ├── .chezmoi.toml.tmpl      profil kérdések → gépenkénti adatok
-    ├── .chezmoidata/theme.toml glacier-night paletta: felület + kódszínezés
+    ├── .chezmoidata/theme.toml symlink az aktív palettára (themes/*.toml)
     ├── .chezmoitemplates/      VS Code téma sablon
     ├── .chezmoiignore          profil szerint kihagyott fájlok
     ├── .chezmoiscripts/        Homebrew, brew bundle, mise install, VS Code téma, herdr integráció, macOS defaults
@@ -135,7 +137,7 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
     │   ├── mise/               Node LTS, pnpm, Go, Java (Temurin 25)
     │   ├── atuin/              kereshető history (Ctrl-R)
     │   ├── wezterm/            terminál (Lua), ghostty/ opcionális alternatíva
-    │   ├── tmux/               josean-alapú config, glacier-night státuszsor
+    │   ├── tmux/               josean-alapú config, a paletta színeivel
     │   ├── sesh/               tmux session-ök
     │   ├── herdr/              agent multiplexer téma (merge)
     │   ├── aerospace/          tiling ablakkezelő (opcionális)
@@ -154,20 +156,28 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 
 ### Téma
 
-Minden szín a [`.chezmoidata/theme.toml`](home/.chezmoidata/theme.toml) palettából jön. Ha itt átírsz egy színt, a `chezmoi apply` után a WezTerm, a tmux, a Starship, az fzf, a delta, az eza, a lazygit és a btop is követi. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
+Minden szín egy **palettából** jön. A paletták a [`themes/`](themes/) mappában vannak, egy fájl egy téma: `darker.toml` (az eredeti, nagyon sötét és kontrasztos) és `nightfrost.toml` (kékesfekete, kicsit visszafogottabb). Mindkettő saját néven fut mindenhol (VS Code, omp, btop).
+
+```bash
+./theme              # lista, az aktív *-gal
+./theme use nightfrost   # váltás (a home/.chezmoidata/theme.toml symlinket állítja át)
+chezmoi apply        # a WezTerm, Ghostty, tmux, Starship, Neovim, lazygit, eza, btop, VS Code, omp követi
+```
+
+Új téma: másold le valamelyik `.toml`-t `themes/<új-név>.toml` néven, írd át a `name`-et és a színeket, majd `./theme use <új-név>`. Egy szín átírása után is elég a `chezmoi apply`. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
 
 ### VS Code
 
-- **Téma:** saját [Glacier Night](vscode/glacier-night/) csomag. A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak.
+- **Téma:** saját [TM Themes](vscode/tm-themes/) csomag: minden paletta egy téma (Darker, Nightfrost). A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak, és az aktív palettát állítja be színtémának.
 - **Fájlikonok:** Material Icon Theme (a Brewfile telepíti), a mappák cyan, az általános fájlok tompa színnel.
 - **Beállítások:** a chezmoi a `settings.json`-ban csak a témát, a fontot (JetBrainsMono Nerd Font) és néhány megjelenési beállítást írja. A többi beállításod megmarad.
 
 ### AI agentek: Claude Code, herdr, oh-my-pi
 
-- **Claude Code:** a chezmoi a `~/.claude/settings.json`-ba csak a glacier-night státuszsort írja, plusz a `theme`, `sandbox` és értesítés alapértékeket, ha még nincsenek. Az `env` (tokenek), `permissions`, `hooks` és `mcpServers` gépenként maradnak, és **soha nem kerülnek a repóba**.
+- **Claude Code:** a chezmoi a `~/.claude/settings.json`-ba csak a státuszsort írja (az aktív paletta színeivel), plusz a `theme`, `sandbox` és értesítés alapértékeket, ha még nincsenek. Az `env` (tokenek), `permissions`, `hooks` és `mcpServers` gépenként maradnak, és **soha nem kerülnek a repóba**.
 - **Globális utasítások:** egy közös sablonból ([`agent-instructions.md`](home/.chezmoitemplates/agent-instructions.md)) generálódik a Claude Code `~/.claude/CLAUDE.md`-je és az oh-my-pi `~/.omp/agent/AGENTS.md`-je. Tartalma: nyelv, stack, a dotfiles működése; a gép típusa szerint (Mac / Debian host / devcontainer) és céges profilon kiegészül.
-- **herdr:** agent multiplexer, több Claude / omp session egy helyen. Glacier-night téma. A sidebarban látszik, melyik agent dolgozik, vár inputra vagy végzett.
-- **oh-my-pi (`omp`):** coding agent TUI, saját glacier-night témával és Nerd Font ikonokkal.
+- **herdr:** agent multiplexer, több Claude / omp session egy helyen. Az aktív paletta témájával. A sidebarban látszik, melyik agent dolgozik, vár inputra vagy végzett.
+- **oh-my-pi (`omp`):** coding agent TUI, az aktív paletta témájával és Nerd Font ikonokkal.
   - **Engedélyezés:** az omp alapból `yolo` módban mindent kérdés nélkül futtat, nálunk az alap a `write`. A fájlszerkesztés megy, a parancsok kérdeznek, kivéve amit a szabálylista enged:
     - **kérdés nélkül:** olvasó és teszt parancsok (`git status/diff/log`, `rg`, `go test`, `pnpm test/lint`, `./gradlew test` …);
     - **mindig kérdez:** `sudo`, `git push`, `git reset --hard`, `rm -rf`, `chezmoi apply`;

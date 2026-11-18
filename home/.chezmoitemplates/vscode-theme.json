@@ -1,10 +1,10 @@
 {{- $t := .theme -}}
 {{- $s := .theme.syntax -}}
-{{- $line := "#0E1E2B" -}}
-{{- $gutter := "#3B5068" -}}
+{{- $line := $t.line -}}
+{{- $gutter := $t.gutter -}}
 {
   "$schema": "vscode://schemas/color-theme",
-  "name": "Glacier Night",
+  "name": "{{ $t.name | title }}",
   "type": "dark",
   "semanticHighlighting": true,
   "colors": {
@@ -58,7 +58,7 @@
 
     "list.activeSelectionBackground": "{{ $t.bg_highlight }}",
     "list.activeSelectionForeground": "{{ $t.fg_bright }}",
-    "list.inactiveSelectionBackground": "#0E2235",
+    "list.inactiveSelectionBackground": "{{ $t.inactive }}",
     "list.inactiveSelectionForeground": "{{ $t.fg }}",
     "list.hoverBackground": "{{ $t.bg_alt }}",
     "list.hoverForeground": "{{ $t.fg_bright }}",
@@ -107,16 +107,16 @@
     "editor.inactiveSelectionBackground": "{{ $t.selection }}80",
     "editor.wordHighlightBackground": "{{ $t.bg_highlight }}80",
     "editor.wordHighlightStrongBackground": "{{ $t.bg_highlight }}cc",
-    "editor.findMatchBackground": "#0A64AC99",
+    "editor.findMatchBackground": "{{ $t.find }}99",
     "editor.findMatchBorder": "{{ $t.accent }}",
-    "editor.findMatchHighlightBackground": "#0A64AC4d",
+    "editor.findMatchHighlightBackground": "{{ $t.find }}4d",
     "editor.findRangeHighlightBackground": "{{ $t.bg_highlight }}40",
     "editor.rangeHighlightBackground": "{{ $t.bg_highlight }}40",
     "editor.hoverHighlightBackground": "{{ $t.bg_highlight }}66",
     "editor.linkedEditingBackground": "{{ $t.bg_highlight }}66",
     "editor.foldBackground": "{{ $t.bg_alt }}",
     "editorLink.activeForeground": "{{ $t.accent }}",
-    "editorWhitespace.foreground": "#1E3346",
+    "editorWhitespace.foreground": "{{ $t.whitespace }}",
     "editorIndentGuide.background1": "{{ $line }}",
     "editorIndentGuide.activeBackground1": "{{ $t.bg_highlight }}",
     "editorRuler.foreground": "{{ $line }}",
@@ -242,7 +242,7 @@
     "terminal.foreground": "{{ $t.fg }}",
     "terminal.border": "{{ $line }}",
     "terminal.selectionBackground": "{{ $t.selection }}",
-    "terminal.findMatchBackground": "#0A64AC99",
+    "terminal.findMatchBackground": "{{ $t.find }}99",
     "terminalCursor.foreground": "{{ $t.cursor }}",
     "terminalCursor.background": "{{ $t.bg }}",
     "terminal.ansiBlack": "{{ $t.ansi.black }}",

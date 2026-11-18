@@ -1,7 +1,7 @@
 {
-  "name": "glacier-night",
-  "displayName": "Glacier Night",
-  "description": "Deep navy dark theme with teal accents — matches the glacier-night terminal, tmux and Neovim setup.",
+  "name": "tm-themes",
+  "displayName": "TM Themes",
+  "description": "Own dark color themes (darker, nightfrost, \u2026) generated from the dotfiles palettes in themes/*.toml.",
   "version": "0.1.0",
   "publisher": "tamasmarton",
   "engines": {
@@ -14,11 +14,10 @@
     "theme",
     "dark",
     "navy",
-    "teal",
-    "glacier"
+    "teal"
   ],
   "galleryBanner": {
-    "color": "#050B11",
+    "color": "#0B121A",
     "theme": "dark"
   },
   "repository": {
@@ -28,9 +27,14 @@
   "contributes": {
     "themes": [
       {
-        "label": "Glacier Night",
+        "label": "Darker",
         "uiTheme": "vs-dark",
-        "path": "./themes/glacier-night-color-theme.json"
+        "path": "./themes/darker-color-theme.json"
+      },
+      {
+        "label": "Nightfrost",
+        "uiTheme": "vs-dark",
+        "path": "./themes/nightfrost-color-theme.json"
       }
     ]
   }

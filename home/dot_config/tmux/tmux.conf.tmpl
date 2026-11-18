@@ -1,5 +1,5 @@
-# tmux — josean-alapú, glacier-night státuszsorral
-# Generálva: home/dot_config/tmux/tmux.conf.tmpl + .chezmoidata/theme.toml
+# tmux — josean-alapú, {{ .theme.name }} státuszsorral
+# Generálva: home/dot_config/tmux/tmux.conf.tmpl + themes/*.toml
 # A pluginokat a chezmoi tölti le (.chezmoiexternal.toml), tpm nem kell.
 {{- $t := .theme }}
 
@@ -65,7 +65,7 @@ bind T run-shell "sesh connect \"$(
     --preview 'sesh preview {}'
 )\""
 
-# ── Téma: glacier-night ─────────────────────────────────────────────────
+# ── Téma: {{ .theme.name }} ─────────────────────────────────────────────────
 set -g status-position top
 set -g status-interval 5
 set -g status-justify left

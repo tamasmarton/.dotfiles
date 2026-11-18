@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Paletta váltó: a themes/<név>.toml-ok közül az aktívat állítja be, és (kérésre) alkalmazza.
+#
+#   ./theme              az elérhető paletták listája (az aktív *-gal)
+#   ./theme use <név>    váltás (a home/.chezmoidata/theme.toml symlink átállítása)
+#   ./theme apply <név>  váltás + chezmoi apply
+set -euo pipefail
+
+repo="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+link="$repo/home/.chezmoidata/theme.toml"
+
+active=""
+[[ -L "$link" ]] && active="$(basename "$(readlink "$link")" .toml)"
+
+list() {
+  for f in "$repo"/themes/*.toml; do
+    n="$(basename "$f" .toml)"
+    if [[ "$n" == "$active" ]]; then echo "* $n"; else echo "  $n"; fi
+  done
+}
+
+use() {
+  local name="${1:-}"
+  [[ -n "$name" && -f "$repo/themes/$name.toml" ]] || { echo "theme: ismeretlen paletta: '$name'" >&2; list >&2; exit 1; }
+  ln -sfn "../../themes/$name.toml" "$link"
+  echo "==> aktív paletta: $name"
+}
+
+case "${1:-list}" in
+  list) list ;;
+  use) use "${2:-}" ;;
+  apply) use "${2:-}"; chezmoi apply ;;
+  *) echo "használat: ./theme [list | use <név> | apply <név>]" >&2; exit 2 ;;
+esac

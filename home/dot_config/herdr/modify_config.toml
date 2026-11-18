@@ -14,7 +14,7 @@
 
 {{- $_ := set $cfg "onboarding" false -}}
 
-{{- /* Téma: a beépített alapra a glacier-night tokenek kerülnek */ -}}
+{{- /* Téma: a beépített alapra az aktív paletta tokenjei kerülnek */ -}}
 {{- $custom := dict
       "accent" $t.accent
       "panel_bg" $t.bg

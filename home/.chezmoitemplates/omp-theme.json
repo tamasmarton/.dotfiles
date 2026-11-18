@@ -2,7 +2,7 @@
 {{- $s := .theme.syntax -}}
 {
   "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/tui/src/theme/theme-schema.json",
-  "name": "glacier-night",
+  "name": "{{ $t.name }}",
   "vars": {
     "bg": "{{ $t.bg }}",
     "bgAlt": "{{ $t.bg_alt }}",

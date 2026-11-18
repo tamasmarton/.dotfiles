@@ -2,7 +2,7 @@
 {{- /*
   Claude Code — ~/.claude/settings.json
   A Claude Code (és a herdr integráció) maga is írja ezt a fájlt, ezért a chezmoi NEM írja felül:
-  - mindig beállítja: statusLine (glacier-night)
+  - mindig beállítja: statusLine (az aktív paletta)
   - csak ha még nincs: theme, sandbox, push értesítések
   - SOHA nem nyúl hozzá: env (tokenek!), permissions, hooks, mcpServers — ezek gépenként maradnak
 */ -}}

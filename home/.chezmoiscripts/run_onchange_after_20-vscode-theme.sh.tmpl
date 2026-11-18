@@ -1,17 +1,30 @@
 {{- if .gui -}}
 #!/bin/bash
-# Glacier Night VS Code téma: újragenerálás és telepítés, ha a paletta, a sablon vagy a csomag változik.
-# téma hash: {{ includeTemplate "vscode-glacier-night.json" . | sha256sum }}
-# csomag hash: {{ joinPath .chezmoi.workingTree "vscode/glacier-night/package.json" | include | sha256sum }}
+# TM Themes VS Code csomag: újragenerálás és telepítés, ha egy paletta, a sablon vagy a csomag változik.
+# téma hash: {{ includeTemplate "vscode-theme.json" . | sha256sum }}
+{{- range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") }}
+# paletta {{ base $f }}: {{ include $f | sha256sum }}
+{{- end }}
+# csomag hash: {{ joinPath .chezmoi.workingTree "vscode/tm-themes/package.json" | include | sha256sum }}
 set -euo pipefail
 
-pkg="{{ .chezmoi.workingTree }}/vscode/glacier-night"
+pkg="{{ .chezmoi.workingTree }}/vscode/tm-themes"
 
-# A JSON-t a chezmoi itt rendereli (a build.sh-ból nem hívhatjuk a chezmoit apply közben)
-cat >"$pkg/themes/glacier-night-color-theme.json" <<'GLACIER_NIGHT_JSON'
-{{ includeTemplate "vscode-glacier-night.json" . | trim }}
-GLACIER_NIGHT_JSON
+# A JSON-okat a chezmoi itt rendereli (a build.sh-ból nem hívhatjuk a chezmoit apply közben)
+rm -f "$pkg"/themes/*-color-theme.json
+{{ range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") -}}
+{{ $p := include $f | fromToml -}}
+cat >"$pkg/themes/{{ base $f | trimSuffix ".toml" }}-color-theme.json" <<'TM_THEME_EOF'
+{{ includeTemplate "vscode-theme.json" (dict "theme" $p.theme) | trim }}
+TM_THEME_EOF
+{{ end -}}
 
-echo "==> Glacier Night VS Code téma csomagolása és telepítése…"
+# a régi, Glacier Night nevű csomag eltávolítása (ha még fent van)
+code_bin="$(command -v code || true)"
+[ -z "$code_bin" ] && [ -x "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ] \
+  && code_bin="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+[ -n "$code_bin" ] && "$code_bin" --uninstall-extension tamasmarton.glacier-night >/dev/null 2>&1 || true
+
+echo "==> TM Themes VS Code csomag építése és telepítése…"
 "$pkg/build.sh" --skip-render --install || echo "Figyelem: a VS Code téma telepítése nem sikerült (a többi beállítás rendben)." >&2
 {{ end -}}

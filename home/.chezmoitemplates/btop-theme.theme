@@ -1,4 +1,4 @@
-# btop — glacier-night (generálva: .chezmoidata/theme.toml)
+# btop — {{ .theme.name }} (generálva: themes/*.toml)
 {{- $t := .theme }}
 theme[main_bg]=""
 theme[main_fg]="{{ $t.fg }}"

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Glacier Night VS Code téma: JSON generálása a palettából + .vsix csomag (+ telepítés).
+# TM Themes VS Code csomag: témánként egy JSON a themes/*.toml palettákból + .vsix (+ telepítés).
 #
 #   ./build.sh                 téma JSON újragenerálása (chezmoi) + dist/*.vsix
 #   ./build.sh --install       …és telepítés a VS Code-ba
 #   ./build.sh --skip-render   a meglévő themes/*.json-ból csomagol (a chezmoi script így hívja)
+#
+# Minden ../../themes/<név>.toml palettából lesz egy "<Név>" nevű téma a VS Code választóban.
 set -euo pipefail
 
 here="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
@@ -20,16 +22,32 @@ for arg in "$@"; do
   esac
 done
 
-theme_json="themes/glacier-night-color-theme.json"
-
 if $render; then
   command -v chezmoi >/dev/null || { echo "build.sh: a chezmoi kell a téma generálásához" >&2; exit 1; }
-  chezmoi execute-template --source="$repo" '{{ template "vscode-glacier-night.json" . }}' >"$theme_json.tmp"
-  mv "$theme_json.tmp" "$theme_json"
+  rm -f themes/*-color-theme.json
+  for palette in "$repo"/themes/*.toml; do
+    pname="$(basename "$palette" .toml)"
+    chezmoi execute-template --source="$repo" \
+      "{{ \$p := include \"$palette\" | fromToml }}{{ template \"vscode-theme.json\" (dict \"theme\" \$p.theme) }}" \
+      >"themes/$pname-color-theme.json"
+  done
 fi
 
-# JSON ellenőrzés (python3 a macOS Command Line Tools része)
-python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$theme_json"
+# JSON ellenőrzés + a package.json "contributes.themes" listája a meglévő téma-fájlokból
+python3 - <<'PY'
+import glob, json, os
+pkg = json.load(open("package.json"))
+themes = []
+for f in sorted(glob.glob("themes/*-color-theme.json")):
+    label = json.load(open(f))["name"]
+    themes.append({"label": label, "uiTheme": "vs-dark", "path": "./" + f})
+if not themes:
+    raise SystemExit("build.sh: nincs themes/*-color-theme.json (futtasd render-rel)")
+pkg["contributes"] = {"themes": themes}
+with open("package.json", "w") as fh:
+    json.dump(pkg, fh, indent=2)
+    fh.write("\n")
+PY
 
 name="$(sed -n 's/^ *"name": *"\([^"]*\)".*/\1/p' package.json | head -1)"
 publisher="$(sed -n 's/^ *"publisher": *"\([^"]*\)".*/\1/p' package.json | head -1)"
@@ -37,11 +55,11 @@ version="$(sed -n 's/^ *"version": *"\([^"]*\)".*/\1/p' package.json | head -1)"
 display="$(sed -n 's/^ *"displayName": *"\([^"]*\)".*/\1/p' package.json | head -1)"
 vsix="dist/$name-$version.vsix"
 
-stage="$(mktemp -d "${TMPDIR:-/tmp}/glacier-night.XXXXXX")"
+stage="$(mktemp -d "${TMPDIR:-/tmp}/tm-themes.XXXXXX")"
 trap 'rm -rf "$stage"' EXIT
 mkdir -p "$stage/extension/themes" dist
 cp package.json README.md "$stage/extension/"
-cp "$theme_json" "$stage/extension/themes/"
+cp themes/*-color-theme.json "$stage/extension/themes/"
 
 cat >"$stage/[Content_Types].xml" <<'EOF'
 <?xml version="1.0" encoding="utf-8"?>
@@ -58,7 +76,7 @@ cat >"$stage/extension.vsixmanifest" <<EOF
   <Metadata>
     <Identity Language="en-US" Id="$name" Version="$version" Publisher="$publisher"/>
     <DisplayName>$display</DisplayName>
-    <Description xml:space="preserve">Glacier Night color theme</Description>
+    <Description xml:space="preserve">TM Themes color themes</Description>
     <Tags>theme,color-theme,dark</Tags>
     <Categories>Themes</Categories>
     <GalleryFlags>Public</GalleryFlags>

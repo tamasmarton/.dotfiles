@@ -5,6 +5,6 @@
 set -euo pipefail
 SRC="${SRC:-/src}"
 
-su - vscode -c "cp -a '$SRC' ~/.dotfiles && rm -rf ~/.dotfiles/vscode/glacier-night/dist"
+su - vscode -c "cp -a '$SRC' ~/.dotfiles && rm -rf ~/.dotfiles/vscode/tm-themes/dist"
 su -w GITHUB_TOKEN,MISE_GITHUB_TOKEN - vscode -c 'cd ~/.dotfiles && REMOTE_CONTAINERS=true DOTFILES_PROFILE=work DOTFILES_EMAIL=test@example.com ./install.sh </dev/null'
 su - vscode -c "bash '$SRC/test/e2e/verify.sh'"

@@ -1,5 +1,5 @@
--- Tokyonight Night alapon glacier-night (generálva: .chezmoidata/theme.toml)
--- A felület a [theme], a kódszínezés a [theme.syntax] palettából jön — ugyanaz, mint a VS Code Glacier Night témában.
+-- Tokyonight Night alapon {{ .theme.name }} (generálva: themes/*.toml)
+-- A felület a [theme], a kódszínezés a [theme.syntax] palettából jön — ugyanaz, mint a VS Code {{ .theme.name | title }} témában.
 {{- $t := .theme }}
 {{- $s := .theme.syntax }}
 return {

@@ -1,5 +1,5 @@
-# Starship prompt — glacier-night
-# Generálva: home/dot_config/starship.toml.tmpl + .chezmoidata/theme.toml
+# Starship prompt — {{ .theme.name }}
+# Generálva: home/dot_config/starship.toml.tmpl + themes/*.toml
 # Az ikonok Nerd Font v3 glyphek (JetBrainsMono Nerd Font nélkül üresnek látszanak).
 {{- $t := .theme }}
 
@@ -7,7 +7,7 @@
 
 add_newline = true
 command_timeout = 1000
-palette = "glacier_night"
+palette = "{{ .theme.name | replace "-" "_" }}"
 
 format = """
 $os\
@@ -29,7 +29,7 @@ $docker_context\
 $time
 $character"""
 
-[palettes.glacier_night]
+[palettes.{{ .theme.name | replace "-" "_" }}]
 fg = "{{ $t.fg }}"
 fg_bright = "{{ $t.fg_bright }}"
 muted = "{{ $t.muted }}"

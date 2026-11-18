@@ -1,5 +1,5 @@
-# Ghostty — glacier-night (opcionális; a Brewfile-ban a cask ki van kommentezve)
-# Generálva: home/dot_config/ghostty/config.tmpl + .chezmoidata/theme.toml
+# Ghostty — {{ .theme.name }} (opcionális; a Brewfile-ban a cask ki van kommentezve)
+# Generálva: home/dot_config/ghostty/config.tmpl + themes/*.toml
 {{- $t := .theme }}
 
 font-family = {{ $t.font }}

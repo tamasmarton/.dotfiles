@@ -14,7 +14,7 @@
 
 {{- /* Téma */ -}}
 {{- $theme := get $cfg "theme" | default dict -}}
-{{- $_ := set $theme "dark" "glacier-night" -}}
+{{- $_ := set $theme "dark" .theme.name -}}
 {{- $_ := set $cfg "theme" $theme -}}
 {{- if not (hasKey $cfg "symbolPreset") -}}
 {{-   $_ := set $cfg "symbolPreset" "nerd" -}}

@@ -1,0 +1,72 @@
+# nightfrost — kékesfekete, kicsit visszafogottabb kontrasztú paletta (alap ≈ 10,5:1).
+# Aktiválás: ./theme use nightfrost
+# Ugyanazok a kulcsok, mint a darker.toml-ban — szabadon szerkeszthető, majd chezmoi apply.
+
+[theme]
+name = "nightfrost"
+font = "JetBrainsMono Nerd Font"
+
+bg = "#0B121A"          # fő háttér
+bg_alt = "#111B26"      # státuszsor, popupok
+bg_highlight = "#1A3047" # aktív sor, keretek
+selection = "#17406B"
+fg = "#B4C4D4"
+fg_bright = "#DCE6F0"
+muted = "#6F8197"       # kommentek, inaktív elemek
+border = "#3A5672"
+
+accent = "#3CC8DC"      # jégkék-cián — fő kiemelőszín
+cursor = "#6EE7B7"
+
+# VS Code finomhangolás (aktív sor, sorszám, nem fókuszos kijelölés, keresés, whitespace)
+line = "#101C28"
+gutter = "#3A4F66"
+inactive = "#122234"
+find = "#0A64AC"
+whitespace = "#1C2E40"
+
+[theme.ansi]
+black = "#18222E"
+red = "#F06A6A"
+green = "#5CCB9A"
+yellow = "#E5C46B"
+blue = "#5B9BEF"
+magenta = "#C072D6"
+cyan = "#4FB8DA"
+white = "#B4C4D4"
+
+[theme.bright]
+black = "#6F8197"
+red = "#FF8585"
+green = "#86E0B6"
+yellow = "#F2D98C"
+blue = "#86B8F7"
+magenta = "#E57AA6"
+cyan = "#3CC8DC"
+white = "#EAF1F7"
+
+[theme.extra]
+orange = "#F2A25C"
+pink = "#E57AA6"
+
+# Kódszínezés: kevesebb zöld, több kék/ciánkék; a kommentek olvashatók maradnak.
+[theme.syntax]
+comment = "#627590"
+keyword = "#3CC8DC"
+storage = "#6BA6F0"
+func = "#8CBFF8"
+type = "#E5C46B"
+string = "#93D3B4"
+number = "#F2A25C"
+constant = "#F0B67A"
+variable = "#B4C4D4"
+parameter = "#D0B8EE"
+property = "#8DBFD8"
+operator = "#7F97B2"
+tag = "#E57AA6"
+attribute = "#EBCB8B"
+decorator = "#D68BE6"
+builtin = "#E57AA6"
+namespace = "#8AA2E8"
+regex = "#F2A25C"
+escape = "#E57AA6"
