@@ -6,6 +6,9 @@ title = "személyes gép"
 description = "Minden app, személyes kiegészítők (Brave, Spotify, VLC …)."
 
 # Alapérték; az env fájl vagy a kérdés felülírja
+# GUI-s rész (casks, VS Code téma, WezTerm/Ghostty, macOS defaults)
+gui = true
+
 signCommits = false
 
 # Céges gépen true: külön, személyes git email a személyes repókhoz

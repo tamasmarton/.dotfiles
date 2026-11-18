@@ -1,7 +1,7 @@
-{{- if .isLinux -}}
+{{- if or .isLinux (and .brew (not .gui)) -}}
 #!/bin/bash
-# Claude Code CLI Linuxon (Debian hostok, devcontainerek) — a hivatalos natív telepítővel (~/.local/bin/claude),
-# ami magától frissül. Macen a Brewfile `claude-code` caskja telepíti.
+# Claude Code CLI Linuxon és `server` profilú Macen (Debian hostok, devcontainerek) — a hivatalos natív telepítővel (~/.local/bin/claude),
+# ami magától frissül. GUI-s Macen a Brewfile `claude-code` caskja telepíti.
 set -euo pipefail
 
 if command -v claude >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/claude" ]]; then

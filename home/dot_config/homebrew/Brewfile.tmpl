@@ -1,5 +1,5 @@
 # Homebrew csomagok — a chezmoi generálja: home/dot_config/homebrew/Brewfile.tmpl
-# Profil: {{ .profile }}
+# Profil: {{ .profile }}{{ if not .gui }} (szerver: csak terminálos formulák, nincs cask / VS Code){{ end }}
 #
 # Kezelés:  brewfile install | upgrade | check | cleanup | edit
 # Változás után a `chezmoi apply` automatikusan lefuttatja a `brewfile install`-t.
@@ -8,7 +8,9 @@
 
 # ── Tapek ───────────────────────────────────────────────────────────────
 tap "can1357/tap"               # oh-my-pi (omp)
+{{- if .gui }}
 tap "nikitabobko/tap"           # AeroSpace
+{{- end }}
 
 # ── Alap ────────────────────────────────────────────────────────────────
 brew "git"
@@ -38,7 +40,9 @@ brew "tmux"
 brew "sesh"                     # tmux session-ök zoxide alapján
 brew "yazi"                     # fájlkezelő
 brew "lazygit"
+{{- if .gui }}
 brew "lazydocker"
+{{- end }}
 brew "git-delta"                # diff pager
 
 # ── AI agent TUI-k ──────────────────────────────────────────────────────
@@ -48,6 +52,8 @@ brew "can1357/tap/omp"          # oh-my-pi coding agent
 # ── Neovim ──────────────────────────────────────────────────────────────
 brew "neovim"
 brew "tree-sitter-cli"
+
+{{- if .gui }}
 
 # ── Terminál és font ────────────────────────────────────────────────────
 cask "wezterm@nightly"
@@ -76,4 +82,5 @@ cask "hiddenbar"
 
 # ── Céges ───────────────────────────────────────────────────────────────
 # Ide jönnek a céges gép extra csomagjai.
+{{- end }}
 {{- end }}

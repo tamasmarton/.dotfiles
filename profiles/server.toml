@@ -1,0 +1,14 @@
+# Profil: server — szerver / headless gép (pl. Mac mini szerver). Nincs benne személyes adat.
+# CSAK terminálos setup: Homebrew formulák (nincs cask, VS Code, font, ablakkezelő, GUI app config),
+# a mise-ből csak a Node, nincs macOS defaults. Linuxon a Debian host úgyis így működik.
+
+title = "szerver (csak terminál)"
+description = "Csak terminálos eszközök: nincs cask, VS Code, font, WezTerm/Ghostty, AeroSpace."
+
+# GUI-s rész (casks, VS Code téma, Terminal.app profilok, macOS defaults): ki
+gui = false
+
+signCommits = false
+
+askPersonalEmail = false
+personalGitDir = ""

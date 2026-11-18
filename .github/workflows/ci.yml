@@ -30,6 +30,7 @@ jobs:
         include:
           - { name: macOS personal, os: macos-latest, profile: personal, container: "" }
           - { name: macOS work, os: macos-latest, profile: work, container: "" }
+          - { name: macOS server, os: macos-latest, profile: server, container: "" }
           - { name: devcontainer (Linux), os: ubuntu-latest, profile: work, container: "1" }
     runs-on: ${{ matrix.os }}
     env:
@@ -70,7 +71,9 @@ jobs:
           DOTFILES_ENV_FILE="$RUNNER_TEMP/env.toml" chezmoi init --config="$RUNNER_TEMP/envc.toml" --source="$GITHUB_WORKSPACE" </dev/null
           chezmoi data --config="$RUNNER_TEMP/envc.toml" --source="$GITHUB_WORKSPACE" --format=json | jq -e '.profile=="work" and .name=="CI User" and .email=="ci-env@example.com" and .personalGitDir!=""'
           # ismeretlen profil: érthető hiba, nem összeomlás
-          ! DOTFILES_PROFILE=nincs-ilyen chezmoi init --config="$RUNNER_TEMP/envc2.toml" --source="$GITHUB_WORKSPACE" </dev/null
+          if DOTFILES_PROFILE=nincs-ilyen chezmoi init --config="$RUNNER_TEMP/envc2.toml" --source="$GITHUB_WORKSPACE" </dev/null; then
+            echo "ismeretlen profilnál az init-nek hibáznia kell"; exit 1
+          fi
 
       - name: Generált fájlok ellenőrzése (JSON, TOML, YAML, zsh, Lua)
         run: |
@@ -121,7 +124,16 @@ jobs:
 
       - name: Brewfile (macOS)
         if: runner.os == 'macOS'
-        run: brew bundle list --file="$RUNNER_TEMP/home/.config/homebrew/Brewfile" --all
+        run: |
+          F="$RUNNER_TEMP/home/.config/homebrew/Brewfile"
+          brew bundle list --file="$F" --all
+          if [ "$DOTFILES_PROFILE" = "server" ]; then
+            # szerver profil: csak terminálos formulák
+            if grep -E '^(cask|vscode|mas) ' "$F"; then echo "a szerver Brewfile-ban nem lehet cask / vscode"; exit 1; fi
+            for p in .config/wezterm .config/ghostty Library; do
+              if [ -e "$RUNNER_TEMP/home/$p" ]; then echo "a szerver profilon nem lehet: $p"; exit 1; fi
+            done
+          fi
 
   themes:
     name: Témák (VS Code, oh-my-pi)

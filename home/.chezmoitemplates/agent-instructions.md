@@ -9,6 +9,9 @@
 - macOS, zsh (`ZDOTDIR=~/.config/zsh`), WezTerm vagy Ghostty + tmux, Neovim és VS Code.
 - A runtime-okat a **mise** kezeli (Node LTS, pnpm, Go, Java Temurin). Projektverzió: `mise use node@20` stb. — ne nvm-et vagy brew-t javasolj ehhez.
 - Csomagok: Homebrew, a listát a dotfiles `Brewfile`-ja tartalmazza (`brewfile` parancs).
+{{- else if .brew }}
+- Headless Mac szerver, SSH-n át használva. zsh, tmux, Neovim; nincs GUI, nincsenek cask-ok.
+- A CLI eszközöket a **Homebrew** adja (`brewfile` parancs), a Node a **mise**-ből.
 {{- else if .linuxHost }}
 - Headless {{ if .isDebian }}Debian/Ubuntu {{ end }}szerver, SSH-n át használva. zsh, tmux, Neovim; nincs GUI.
 - A CLI eszközök és a Node a **mise**-ből jönnek (`mise ls`), a rendszercsomagok apt-ból (sudo kell hozzájuk).

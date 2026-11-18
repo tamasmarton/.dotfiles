@@ -12,7 +12,7 @@
   Személyes adat (név, email) a repóban nincs: csak az env fájlban vagy a kérdésre adott válaszban.
 
   Gép típusok (automatikusan felismerve):
-    Mac         → minden: GUI appok, Homebrew, runtime-ok (gui = true)
+    Mac         → minden: GUI appok, Homebrew, runtime-ok (gui = true); `server` profil: csak Homebrew formulák, nincs GUI
     Linux host  → headless terminál config SSH-hoz: apt alapcsomagok, CLI eszközök mise-ből, zsh alap shell
     konténer    → devcontainer / Codespaces: csak a terminál config, runtime-ot a projekt image adja
 */ -}}
@@ -66,6 +66,13 @@
 {{- end -}}
 {{- $pc := include (joinPath .chezmoi.workingTree "profiles" (printf "%s.toml" $profile)) | fromToml -}}
 
+{{- /* A profil engedi-e a GUI-s részt (alap: igen). Figyelem: `default true` a false értéket is felülírná. */ -}}
+{{- $profileGui := true -}}
+{{- if hasKey $pc "gui" -}}
+{{-   $profileGui = get $pc "gui" -}}
+{{- end -}}
+{{- $gui := and $isMac (not $isContainer) $profileGui -}}
+
 {{- /* Git azonosság */ -}}
 {{- $name := get $e "name" | default (env "DOTFILES_NAME") -}}
 {{- if not $name -}}
@@ -114,8 +121,12 @@ sourceDir = {{ .chezmoi.workingTree | quote }}
     isLinux = {{ $isLinux }}
     isDebian = {{ $isDebian }}
     isContainer = {{ $isContainer }}
-    # GUI appok (WezTerm, fontok, casks, VS Code) csak valódi Macen
-    gui = {{ and $isMac (not $isContainer) }}
+    # Homebrew-t használó gép: valódi Mac (nem konténer), a profiltól függetlenül
+    brew = {{ and $isMac (not $isContainer) }}
+    # GUI appok (WezTerm, fontok, casks, VS Code): valódi Mac, és a profil engedi (profiles/*.toml: gui)
+    gui = {{ $gui }}
+    # Headless: nincs GUI és nem konténer (Linux host vagy `server` profilú Mac)
+    headless = {{ and (not $gui) (not $isContainer) }}
     # Linux host (nem konténer): headless gép, SSH-n át használva
     linuxHost = {{ and $isLinux (not $isContainer) }}
 

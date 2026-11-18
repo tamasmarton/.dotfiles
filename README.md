@@ -97,7 +97,10 @@ docker run --rm -v "$PWD":/src:ro mcr.microsoft.com/devcontainers/base:debian ba
 
 ### Homebrew csomagok
 
-A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homebrew/Brewfile.tmpl) fájlban van, profil szerinti blokkokkal. Ha változik, a `chezmoi apply` magától telepíti az új csomagokat.
+A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homebrew/Brewfile.tmpl) fájlban van, két részre bontva:
+
+- **terminálos rész (minden Macen):** formulák (git, mise, starship, tmux, neovim, lazygit, herdr, omp …) és az `omp` tap. Ez a `server` profil teljes Brewfile-ja.
+- **GUI-s rész (csak `gui = true` profilon):** a terminálok és a font (WezTerm, Ghostty), VS Code és ikonok, Docker Desktop, Claude Code, Raycast, AeroSpace (+ tap), `lazydocker`, valamint a profil szerinti blokkok (személyes vagy céges appok). Ha változik, a `chezmoi apply` magától telepíti az új csomagokat.
 
 | Parancs | Mit csinál |
 |---|---|
@@ -370,8 +373,9 @@ Josean-alapú struktúra és billentyűzés, modern alapokon: lazy.nvim, natív 
 |---|---|
 | [`personal`](profiles/personal.toml) | személyes gép: minden app, személyes kiegészítők (Brave, Spotify, VLC …) |
 | [`work`](profiles/work.toml) | céges gép: `work.zsh` (CA, proxy), céges Brewfile rész, külön személyes git email a `~/Developer/personal/` repókhoz |
+| [`server`](profiles/server.toml) | szerver / headless gép: **csak terminálos setup**. A Brewfile-ban csak formulák (nincs cask, VS Code, font), nincs WezTerm / Ghostty / AeroSpace config, VS Code téma, Terminal.app profil és macOS defaults; a mise-ből csak a Node jön; a Claude Code a natív telepítővel települ |
 
-Egy profilfájl kulcsai: `title`, `description`, `signCommits` (alapérték), `askPersonalEmail`, `personalGitDir`. Új profil: másold le valamelyiket `profiles/<név>.toml` néven.
+Egy profilfájl kulcsai: `title`, `description`, `gui` (kell-e a GUI-s rész, alap: igen), `signCommits` (alapérték), `askPersonalEmail`, `personalGitDir`. Új profil: másold le valamelyiket `profiles/<név>.toml` néven.
 
 **Env fájl** (`~/.config/dotfiles/env.toml`, a repón kívül, soha nem kerül verziókezelésbe): a név, email és a profil gépenkénti értékei. A repóban csak a minta van: [`env.example.toml`](env.example.toml).
 
@@ -393,7 +397,9 @@ Rossz válasz javítása (pl. rossz név): vagy írd be az env fájlba, vagy `ch
 | `.name`, `.email`, `.personalEmail`, `.signCommits` | az env fájlból, változóból vagy kérdésből |
 | `.personalGitDir` | a profilfájlból: ebben a mappában a személyes email érvényes |
 | `.isContainer` | automatikusan felismert devcontainer, Codespaces vagy Docker |
-| `.gui` | valódi Mac (nem konténer): casks, fontok, WezTerm |
+| `.brew` | Homebrew-t használó gép: valódi Mac (nem konténer), profiltól függetlenül |
+| `.gui` | `.brew` **és** a profil engedi (`gui = true`): casks, fontok, WezTerm, VS Code |
+| `.headless` | nincs GUI és nem konténer: Linux host vagy `server` profilú Mac |
 
 Sablonban: `{{ if .isWork }}…{{ end }}`
 

@@ -10,8 +10,8 @@ pnpm = "latest"
 go = "latest"
 java = "temurin-25"            # LTS; projektenként: mise use java@temurin-21
 # rust = "stable"              # később
-{{- else if .linuxHost }}
-# ── Runtime (Linux host) — a Neovim LSP-khez elég a Node ────────────────
+{{- else if .headless }}
+# ── Runtime (headless: Linux host, szerver profil) — a Neovim LSP-khez elég a Node ────────────────
 node = "lts"
 {{- end }}
 {{- if .isLinux }}

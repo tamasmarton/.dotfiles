@@ -5,6 +5,9 @@
 title = "céges gép"
 description = "Céges CA/proxy beállítás, külön személyes git email, nincs személyes app."
 
+# GUI-s rész (casks, VS Code téma, WezTerm/Ghostty, macOS defaults)
+gui = true
+
 signCommits = false
 
 askPersonalEmail = true

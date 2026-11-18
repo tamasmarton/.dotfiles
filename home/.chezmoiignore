@@ -1,9 +1,13 @@
 {{- /* Célútvonalak (a $HOME-hoz képest), amiket az adott gépen NEM kell kirakni. */ -}}
 
-{{ if not .gui }}
-# Konténerben / Linuxon nincs Homebrew csomaglista és GUI app config
+{{ if not .brew }}
+# Konténerben / Linuxon nincs Homebrew csomaglista
 .config/homebrew
 .local/bin/brewfile
+{{ end }}
+
+{{ if not .gui }}
+# Konténerben / Linuxon / `server` profilon nincs GUI app config
 .config/wezterm
 .config/ghostty
 .config/aerospace
