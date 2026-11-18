@@ -1,0 +1,21 @@
+{{- if .gui -}}
+#!/bin/bash
+# macOS Terminal.app profilok: minden palettából egy .terminal fájl (importálás: ./theme terminal [név]).
+{{- range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") }}
+# paletta {{ base $f }}: {{ include $f | sha256sum }}
+{{- end }}
+# generátor: {{ joinPath .chezmoi.workingTree "terminal-app/make-profile.py" | include | sha256sum }}
+set -euo pipefail
+
+out="${XDG_CONFIG_HOME:-$HOME/.config}/terminal-app"
+gen="{{ .chezmoi.workingTree }}/terminal-app/make-profile.py"
+mkdir -p "$out"
+
+{{ range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") -}}
+{{ $p := include $f | fromToml -}}
+python3 "$gen" "{{ $.brand }}" "$out/{{ $.brand }}-{{ $p.theme.name | title }}.terminal" <<'TM_PALETTE_EOF'
+{{ $p.theme | toJson }}
+TM_PALETTE_EOF
+{{ end -}}
+echo "==> Terminal.app profilok: $out (importálás: ./theme terminal)"
+{{ end -}}

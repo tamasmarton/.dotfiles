@@ -4,6 +4,7 @@
 #   ./theme              az elérhető paletták listája (az aktív *-gal)
 #   ./theme use <név>    váltás (a home/.chezmoidata/theme.toml symlink átállítása)
 #   ./theme apply <név>  váltás + chezmoi apply
+#   ./theme terminal [név]  a macOS Terminal.app profil importálása (alap: az aktív paletta)
 set -euo pipefail
 
 repo="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
@@ -26,9 +27,18 @@ use() {
   echo "==> aktív paletta: $name"
 }
 
+terminal() {
+  local name="${1:-$active}" dir="${XDG_CONFIG_HOME:-$HOME/.config}/terminal-app" file
+  file="$(find "$dir" -maxdepth 1 -iname "*-$name.terminal" 2>/dev/null | head -1 || true)"
+  [[ -n "$file" ]] || { echo "theme: nincs profil '$name' névvel itt: $dir (futtasd a chezmoi apply-t)" >&2; exit 1; }
+  open "$file"
+  echo "==> megnyitva: $file (Terminal ▸ Settings ▸ Profiles: 'Default' gombbal tehető alapértelmezetté)"
+}
+
 case "${1:-list}" in
   list) list ;;
   use) use "${2:-}" ;;
   apply) use "${2:-}"; chezmoi apply ;;
-  *) echo "használat: ./theme [list | use <név> | apply <név>]" >&2; exit 2 ;;
+  terminal) terminal "${2:-}" ;;
+  *) echo "használat: ./theme [list | use <név> | apply <név> | terminal [név]]" >&2; exit 2 ;;
 esac

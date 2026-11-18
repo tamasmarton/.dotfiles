@@ -199,6 +199,19 @@ chezmoi apply
 
 **Új paletta:** másold le valamelyik `.toml`-t `themes/<új-név>.toml` néven, írd át a `name`-et és a színeket, majd `./theme use <új-név>`. Egy meglévő szín átírása után is elég a `chezmoi apply`. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
 
+#### macOS Terminal.app (a sima beépített terminál)
+
+A `chezmoi apply` minden palettából készít egy Terminal.app profilt a `~/.config/terminal-app/` mappába (`Borealis-Darker.terminal`, `Borealis-Nightfrost.terminal`, `Borealis-Bluehour.terminal`): a 16 ANSI szín, háttér, szöveg, kurzor, kijelölés és a JetBrainsMono Nerd Font Mono. A profilt egyszer kell importálni:
+
+```bash
+./theme terminal            # az aktív paletta profilját megnyitja (importálja)
+./theme terminal bluehour   # vagy egy konkrétat
+```
+
+Utána Terminal ▸ Settings ▸ Profiles ▸ a profil ▸ **Default**. Az import nem írja felül a többi profilodat, és a chezmoi nem nyúl a Terminal.app beállításaihoz, így ez tudatos, kézi lépés marad.
+
+**Korlátok:** a Terminal.app nem tud 24 bites színt, csak 256-ot. A Neovim kódszínei emiatt eltérhetnek a VS Code-tól, a tmux pedig Terminal.app alatt kevésbé pontos. A shell, a Starship, az `eza`, a `bat` és a `lazygit` a 16 ANSI színt használja, ezért ott a téma pontosan jön. Neovimhez a Ghostty vagy a WezTerm ajánlott. A VS Code beépített termináljához nem kell külön profil: az a VS Code téma ANSI színeit használja.
+
 ### VS Code
 
 - **Téma:** saját [Borealis](vscode/tm-themes/) csomag: minden paletta egy téma (Borealis · Darker, Nightfrost, Bluehour). A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak, és az aktív palettát állítja be színtémának.
