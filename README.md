@@ -243,20 +243,88 @@ Utána Terminal ▸ Settings ▸ Profiles ▸ a profil ▸ **Default**. Az impor
 | **AeroSpace** | tiling ablakkezelő, `Ctrl-Opt` + `h/j/k/l`, workspace-ek `1–9` | nyisd meg az AeroSpace-t; nem indul el magától |
 | **Raycast** | launcher a Spotlight helyett | első indításkor végigvezet a beállításon |
 
-### tmux röviden (prefix: `Ctrl-a`)
+### tmux (prefix: `Ctrl-a`)
+
+A tmux kezeli a session-öket: a terminálablak bezárása után is futnak a folyamataid (szerveren SSH-n át különösen hasznos).
+
+**Alapok**
+
+```bash
+tmux                      # új session
+tmux new -s api           # névvel
+tmux ls                   # lista
+tmux attach -t api        # visszacsatlakozás (vagy: tmux a)
+```
+
+Kilépés a sessionből úgy, hogy fut tovább: `Ctrl-a d` (detach). Az ablakok sorszáma 1-től indul, bezáráskor újraszámozódnak, és ha az utolsó ablakot zárod, a tmux egy másik sessionre vált (nem lép ki).
+
+**Billentyűk** (először a prefix: `Ctrl-a`, aztán a billentyű)
 
 | Billentyű | Mit csinál |
 |---|---|
+| `c` | új ablak az aktuális mappában |
 | `\|` / `-` | függőleges / vízszintes split az aktuális mappában |
-| `Ctrl-h/j/k/l` | mozgás panelek (és nvim splitek) között, prefix nélkül |
-| `h/j/k/l` · `m` | panel átméretezése · zoom |
+| `Ctrl-h/j/k/l` | mozgás panelek (és Neovim splitek) között, **prefix nélkül** |
+| `h/j/k/l` (ismételhető) | panel átméretezése |
+| `m` | panel zoom be/ki |
 | `T` | session választó (sesh + fzf + zoxide) |
 | `L` | előző session |
-| `g` | lazygit popup |
-| `Ctrl-s` / `Ctrl-r` | session mentése / visszaállítása (15 percenként automatikus) |
+| `g` | lazygit popup az aktuális mappában |
+| `Ctrl-s` / `Ctrl-r` | session mentése / visszaállítása (15 percenként automatikus, újraindítás után is) |
 | `r` | config újratöltése |
+| `Ctrl-a Ctrl-a` | a prefix továbbadása a beágyazott tmuxnak (SSH-n belüli tmux) |
 
-A tmux pluginokat (vim-tmux-navigator, resurrect, continuum) a chezmoi tölti le, tpm nem kell.
+**Másolás:** az egér be van kapcsolva; kijelölés után a szöveg a vágólapra kerül (SSH-n is, OSC 52-vel). Billentyűvel: `Ctrl-a [` (copy mode), `v` kijelölés kezdete, `y` másolás.
+
+**sesh (session választó):** a `Ctrl-a T` listája a futó tmux sessionökből, a [`sesh.toml`](home/dot_config/sesh/sesh.toml.tmpl)-ban felvett fix sessionökből (pl. `dotfiles`) és a zoxide mappáiból áll. A választóban: `Ctrl-a` minden, `Ctrl-t` csak tmux, `Ctrl-x` zoxide, `Ctrl-f` mappakeresés, `Ctrl-d` session bezárása. Új fix session: új `[[session]]` blokk a `sesh.toml`-ban (`name`, `path`, opcionálisan `startup_command`).
+
+**Gépspecifikus bővítés:** `~/.config/tmux/local.conf` (nem verziózott). A pluginokat (vim-tmux-navigator, resurrect, continuum) a chezmoi tölti le, tpm nem kell.
+
+### herdr (agent multiplexer)
+
+A herdr azt oldja meg, hogy egyszerre több kódoló agent (Claude Code, omp) fusson egy helyen: workspace-ekre bontva, a sidebarban látod, melyik dolgozik, melyik vár inputra, és melyik végzett. A munkamenet perzisztens, a terminál bezárása után is megmarad.
+
+```bash
+herdr                         # indítás, vagy csatlakozás a futó sessionhöz
+herdr --session projekt       # névvel ellátott session
+herdr session attach projekt  # visszacsatlakozás
+herdr status                  # a kliens és a szerver állapota
+herdr --remote user@gep       # a távoli gép herdr-je SSH-n át (pl. a Debian gépek)
+```
+
+- **Integráció:** a `chezmoi apply` bekapcsolja a Claude Code és az omp integrációt, ezért az agentek állapota automatikusan látszik. Ellenőrzés: `herdr integration status`.
+- **Beállítások:** a téma és az alapok a chezmoiból jönnek, a többit (billentyűk, panelek) a herdr maga írja a `~/.config/herdr/config.toml`-ba. Ellenőrzés: `herdr config check`, futó szerveren újratöltés: `herdr server reload-config`, saját billentyűk törlése: `herdr config reset-keys`.
+- **Frissítés:** a Homebrew végzi (`brewfile upgrade`), a herdr saját verzióellenőrzése ki van kapcsolva.
+- **Billentyűk:** a herdr-ben megjelenő súgó mutatja, a chezmoi nem változtat rajtuk.
+
+### oh-my-pi (`omp`)
+
+Kódoló agent a terminálban. A munkamappában indítsd, és beszélgetsz vele; fájlt szerkeszt, parancsot futtat (a [fent leírt](#ai-agentek-claude-code-herdr-oh-my-pi) engedélyezési szabályok szerint).
+
+```bash
+omp                          # interaktív
+omp "Mit csinál az src/db.ts?"   # induló kérdéssel
+omp @leiras.md "Valósítsd meg"   # fájl a kérésben
+omp -p "Listázd a TODO-kat"      # nem interaktív: válaszol és kilép
+omp -c                       # az előző session folytatása (omp -r: választó)
+omp --model opus             # modell (rész-egyezés elég)
+omp --approval-mode always-ask   # ennél a futásnál minden parancs kérdez
+omp login                    # bejelentkezés egy modell szolgáltatóhoz (vagy /login)
+```
+
+| Billentyű / parancs | Mit csinál |
+|---|---|
+| `Ctrl+P` / `Alt+M` | modellváltás |
+| `Alt+Shift+P` | plan mód (csak olvas, tervet készít) |
+| `Shift+Tab` | gondolkodási szint |
+| `Ctrl+R` | korábbi promptok keresése |
+| `Ctrl+O` | az eszközök kimenetének kibontása |
+| `Ctrl+G` | a prompt szerkesztése Neovimben |
+| `Alt+A` | agent hub (háttérben futó agentek) |
+| `/settings` | beállítások (téma, engedélyezés …) |
+| `/live` | élő hangmód (a `Ctrl+L` helyett, ami újrarajzol) |
+
+A Claude Code-ra ugyanaz a `CLAUDE.md`/`AGENTS.md` utasítás és ugyanaz a téma vonatkozik, ezért a kettő felváltva használható. A teljes parancslista: `omp --help`.
 
 ### WezTerm
 
