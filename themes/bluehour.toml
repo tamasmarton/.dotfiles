@@ -1,0 +1,72 @@
+# bluehour — kékes "dark 2026" jellegű paletta (alap ≈ 9,5:1).
+# Minta: a VS Code Dark 2026 felépítése (semleges, nagyon sötét szerkesztő + kicsit világosabb panelek,
+# visszafogott kék accent), a Tokyo Night kékes-lilás kódszínei és a nightfrost hangulata.
+# Aktiválás: ./theme use bluehour
+
+[theme]
+name = "bluehour"
+font = "JetBrainsMono Nerd Font"
+
+bg = "#10161D"          # szerkesztő / terminál háttér
+bg_alt = "#171E27"      # oldalsáv, státuszsor, popupok (a Dark 2026-hoz hasonlóan kicsit világosabb)
+bg_highlight = "#1F2935" # aktív sor, keretek
+selection = "#25506E"
+fg = "#B2BCC8"
+fg_bright = "#DDE5EE"
+muted = "#7D8A99"       # kommentek, inaktív elemek
+border = "#2C3947"
+
+accent = "#4AA3D1"      # visszafogott kék (a Dark 2026 #3994BC-jéhez közel, kicsit világosabb)
+cursor = "#8AD4E6"
+
+# VS Code finomhangolás (aktív sor, sorszám, nem fókuszos kijelölés, keresés, whitespace)
+line = "#161E28"
+gutter = "#3E4C5C"
+inactive = "#17202C"
+find = "#1F5F8C"
+whitespace = "#232F3C"
+
+[theme.ansi]
+black = "#1C2531"
+red = "#E5707A"
+green = "#7CC4A0"
+yellow = "#E0BC72"
+blue = "#5FA0E8"
+magenta = "#B88BE0"
+cyan = "#55B6D4"
+white = "#B2BCC8"
+
+[theme.bright]
+black = "#7D8A99"
+red = "#F58C94"
+green = "#9AD9B8"
+yellow = "#EBCF94"
+blue = "#82B8F2"
+magenta = "#D0A8EE"
+cyan = "#7FD0E8"
+white = "#E6EDF4"
+
+[theme.extra]
+orange = "#E8A262"
+pink = "#E58BB0"
+
+[theme.syntax]
+comment = "#66768A"
+keyword = "#6CB6EB"
+storage = "#8E9BF2"
+func = "#9AD0F7"
+type = "#E0BC72"
+string = "#96CDAE"
+number = "#E8A262"
+constant = "#EBB57E"
+variable = "#B2BCC8"
+parameter = "#C9B5EA"
+property = "#8CC6DE"
+operator = "#7F93AB"
+tag = "#E58BB0"
+attribute = "#E5C98F"
+decorator = "#C792EA"
+builtin = "#E58BB0"
+namespace = "#8FA8F0"
+regex = "#E8A262"
+escape = "#E58BB0"

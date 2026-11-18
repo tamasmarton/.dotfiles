@@ -6,7 +6,7 @@ macOS fejlesztői környezet [chezmoi](https://www.chezmoi.io/)-val, saját és 
 
 **Gépek:** Mac (személyes, céges) · headless Debian/Ubuntu (SSH) · devcontainer
 
-**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját TM Themes csomag) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · saját paletták (darker, nightfrost) · JetBrainsMono Nerd Font
+**Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját TM Themes csomag) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · saját paletták (darker, nightfrost, bluehour) · JetBrainsMono Nerd Font
 
 ## Telepítés
 
@@ -156,19 +156,36 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 
 ### Téma
 
-Minden szín egy **palettából** jön. A paletták a [`themes/`](themes/) mappában vannak, egy fájl egy téma: `darker.toml` (az eredeti, nagyon sötét és kontrasztos) és `nightfrost.toml` (kékesfekete, kicsit visszafogottabb). Mindkettő saját néven fut mindenhol (VS Code, omp, btop).
+Minden szín egy **palettából** jön. A paletták a [`themes/`](themes/) mappában vannak, egy fájl egy téma. Mindegyik saját néven fut mindenhol (VS Code, omp, btop):
+
+| Paletta | Jellemző |
+|---|---|
+| `darker` | az eredeti: nagyon sötét, kontrasztos (≈ 14,6:1) |
+| `nightfrost` | kékesfekete, kicsit visszafogottabb (≈ 10,5:1) |
+| `bluehour` | a VS Code Dark 2026 felépítése (semleges sötét szerkesztő, világosabb panelek, visszafogott kék accent), Tokyo Night-szerű kódszínekkel (≈ 9,5:1) |
 
 ```bash
-./theme              # lista, az aktív *-gal
+./theme                  # lista, az aktív *-gal
 ./theme use nightfrost   # váltás (a home/.chezmoidata/theme.toml symlinket állítja át)
-chezmoi apply        # a WezTerm, Ghostty, tmux, Starship, Neovim, lazygit, eza, btop, VS Code, omp követi
+chezmoi apply            # életbe léptetés
 ```
 
-Új téma: másold le valamelyik `.toml`-t `themes/<új-név>.toml` néven, írd át a `name`-et és a színeket, majd `./theme use <új-név>`. Egy szín átírása után is elég a `chezmoi apply`. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
+Új téma: másold le valamelyik `.toml`-t `themes/<új-név>.toml` néven, írd át a `name`-et és a színeket, majd `./theme use <új-név>`. Egy szín átírása után is elég a `chezmoi apply`.
+
+**Melyik alkalmazás melyik témát tölti be**
+
+| Alkalmazás | Téma | Hogyan állítható külön |
+|---|---|---|
+| WezTerm, Ghostty, tmux, Starship, Neovim, lazygit, eza, fzf, delta, Claude státuszsor | mindig az **aktív paletta** | csak `./theme use` (ezek egy színkészletet kapnak) |
+| VS Code | aktív paletta | [`theme-overrides.toml`](home/.chezmoidata/theme-overrides.toml): `vscode = "darker"` |
+| oh-my-pi (`omp`) | aktív paletta | `omp = "nightfrost"` ugyanott |
+| btop | aktív paletta | `btop = "darker"` ugyanott |
+
+Az üres érték az aktív palettát jelenti. A `chezmoi apply` minden futásnál visszaállítja a VS Code és az omp témát erre; ha csak ideiglenesen váltasz (VS Code: `Cmd+K Cmd+T`, omp: `/settings`), az a következő apply-ig él. A bat és a delta szintaxis-kiemelése az `ansi` témát használja, vagyis a terminál 16 színét.
 
 ### VS Code
 
-- **Téma:** saját [TM Themes](vscode/tm-themes/) csomag: minden paletta egy téma (Darker, Nightfrost). A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak, és az aktív palettát állítja be színtémának.
+- **Téma:** saját [TM Themes](vscode/tm-themes/) csomag: minden paletta egy téma (Darker, Nightfrost, Bluehour). A felület és a kódszínezés is a palettából generálódik (`[theme]` és `[theme.syntax]`). A `chezmoi apply` újraépíti és telepíti, ha a színek változnak, és az aktív palettát állítja be színtémának.
 - **Fájlikonok:** Material Icon Theme (a Brewfile telepíti), a mappák cyan, az általános fájlok tompa színnel.
 - **Beállítások:** a chezmoi a `settings.json`-ban csak a témát, a fontot (JetBrainsMono Nerd Font) és néhány megjelenési beállítást írja. A többi beállításod megmarad.
 

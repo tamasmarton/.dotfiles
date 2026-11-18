@@ -27,6 +27,11 @@
   "contributes": {
     "themes": [
       {
+        "label": "Bluehour",
+        "uiTheme": "vs-dark",
+        "path": "./themes/bluehour-color-theme.json"
+      },
+      {
         "label": "Darker",
         "uiTheme": "vs-dark",
         "path": "./themes/darker-color-theme.json"

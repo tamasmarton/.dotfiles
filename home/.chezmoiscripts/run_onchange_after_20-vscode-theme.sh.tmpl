@@ -5,6 +5,7 @@
 {{- range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") }}
 # paletta {{ base $f }}: {{ include $f | sha256sum }}
 {{- end }}
+# beállítás: {{ get .themeOverrides "vscode" }} {{ .theme.name }}
 # csomag hash: {{ joinPath .chezmoi.workingTree "vscode/tm-themes/package.json" | include | sha256sum }}
 set -euo pipefail
 

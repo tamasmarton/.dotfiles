@@ -14,7 +14,7 @@
 
 {{- /* Téma */ -}}
 {{- $theme := get $cfg "theme" | default dict -}}
-{{- $_ := set $theme "dark" .theme.name -}}
+{{- $_ := set $theme "dark" (get .themeOverrides "omp" | default .theme.name) -}}
 {{- $_ := set $cfg "theme" $theme -}}
 {{- if not (hasKey $cfg "symbolPreset") -}}
 {{-   $_ := set $cfg "symbolPreset" "nerd" -}}

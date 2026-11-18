@@ -1,5 +1,5 @@
 #? btop kezdő config — a chezmoi csak egyszer hozza létre, utána a btop maga írja.
-color_theme = "{{ .theme.name }}"
+color_theme = "{{ get .themeOverrides "btop" | default .theme.name }}"
 theme_background = False
 truecolor = True
 vim_keys = True

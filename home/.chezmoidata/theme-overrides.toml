@@ -1,0 +1,8 @@
+# Alkalmazásonkénti téma. Üres = az aktív paletta (./theme use <név>).
+# Csak ott működik, ahol a téma név szerint választható: VS Code, omp, btop.
+# A terminál, tmux, Starship, Neovim stb. mindig az aktív paletta színeit kapja.
+# Példa: vscode = "darker"
+[themeOverrides]
+vscode = ""
+omp = ""
+btop = ""

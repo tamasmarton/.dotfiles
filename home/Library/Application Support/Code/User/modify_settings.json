@@ -11,7 +11,7 @@
 {{- end -}}
 
 {{- /* Téma és ikonok */ -}}
-{{- $_ := set $settings "workbench.colorTheme" (.theme.name | title) -}}
+{{- $_ := set $settings "workbench.colorTheme" (get .themeOverrides "vscode" | default .theme.name | title) -}}
 {{- $_ := set $settings "workbench.iconTheme" "material-icon-theme" -}}
 {{- $_ := set $settings "material-icon-theme.folders.color" $t.ansi.cyan -}}
 {{- $_ := set $settings "material-icon-theme.files.color" $t.muted -}}

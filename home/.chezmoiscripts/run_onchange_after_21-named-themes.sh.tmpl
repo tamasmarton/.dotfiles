@@ -1,6 +1,6 @@
 #!/bin/bash
 # omp és btop témák: minden paletta a saját nevén (themes/<név>.toml → <név>), és az aktív beállítása.
-# aktív: {{ .theme.name }}
+# aktív: {{ .theme.name }} (felülírások: vscode={{ get .themeOverrides "vscode" }} omp={{ get .themeOverrides "omp" }} btop={{ get .themeOverrides "btop" }})
 {{- range $f := glob (joinPath .chezmoi.workingTree "themes" "*.toml") }}
 # paletta {{ base $f }}: {{ include $f | sha256sum }}
 {{- end }}
@@ -27,5 +27,5 @@ TM_THEME_EOF
 # btop: az aktív téma (a btop.conf-ot a btop maga írja, ezért csak a color_theme sort cseréljük)
 btop_conf="${XDG_CONFIG_HOME:-$HOME/.config}/btop/btop.conf"
 if [ -f "$btop_conf" ]; then
-  sed -i.bak 's/^color_theme = .*/color_theme = "{{ .theme.name }}"/' "$btop_conf" && rm -f "$btop_conf.bak"
+  sed -i.bak 's/^color_theme = .*/color_theme = "{{ get .themeOverrides "btop" | default .theme.name }}"/' "$btop_conf" && rm -f "$btop_conf.bak"
 fi
