@@ -13,5 +13,8 @@ export VISUAL="nvim"
 export PAGER="less"
 export LESS="-R --mouse"
 
+# Minimál Linuxon (SSH) gyakran nincs locale: UTF-8 kell az ikonokhoz és a tmuxhoz
+export LANG="${LANG:-C.UTF-8}"
+
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_BUNDLE_FILE_GLOBAL="$XDG_CONFIG_HOME/homebrew/Brewfile"

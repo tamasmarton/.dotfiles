@@ -1,7 +1,6 @@
 # ~/.config/git/config — generálva: home/dot_config/git/config.tmpl
 # Gépspecifikus felülírás (nem verziózott): ~/.config/git/local
 {{- $t := .theme }}
-{{- $hasDelta := or .gui (lookPath "delta") }}
 {{- $sshKey := joinPath .chezmoi.homeDir ".ssh/id_ed25519.pub" }}
 
 [user]
@@ -30,11 +29,11 @@
 
 [core]
 	autocrlf = input
-{{- if $hasDelta }}
-	pager = delta
+	# delta, ha telepítve van; különben less (pl. friss Linuxon, mielőtt a mise feltelepíti)
+	pager = "if command -v delta >/dev/null 2>&1; then delta; else less -FRX; fi"
 
 [interactive]
-	diffFilter = delta --color-only
+	diffFilter = "if command -v delta >/dev/null 2>&1; then delta --color-only; else cat; fi"
 
 [delta]
 	navigate = true
@@ -55,7 +54,7 @@
 	plus-style = syntax "#062A20"
 	plus-emph-style = syntax "#0B4A35"
 	blame-palette = "{{ $t.bg }} {{ $t.bg_alt }}"
-{{- end }}
+
 
 [column]
 	ui = auto
@@ -140,6 +139,13 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+{{- end }}
+
+{{- if and .isWork .personalEmail }}
+
+# Céges gépen a személyes repók (~/Developer/personal/…) a személyes emailt kapják
+[includeIf "gitdir:~/Developer/personal/"]
+	path = ~/.config/git/personal
 {{- end }}
 
 [include]

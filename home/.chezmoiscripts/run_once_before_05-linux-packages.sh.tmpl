@@ -1,0 +1,35 @@
+{{- if .isLinux -}}
+#!/bin/bash
+# Linux alapcsomagok (apt): zsh, tmux, fordítóeszközök (treesitter parserek), git, curl.
+# A többi CLI eszköz (starship, fzf, eza, nvim …) a mise-ből jön, hogy minden gépen ugyanaz a verzió legyen.
+# Egyszer fut le gépenként (illetve ha ez a script változik).
+set -euo pipefail
+
+if ! command -v apt-get >/dev/null 2>&1; then
+  echo "Nem Debian alapú rendszer: az alapcsomagokat (zsh, tmux, build-essential) telepítsd kézzel."
+  exit 0
+fi
+
+packages=(zsh tmux git curl ca-certificates unzip xz-utils build-essential libatomic1 less file procps openssh-client)
+missing=()
+for p in "${packages[@]}"; do
+  dpkg -s "$p" >/dev/null 2>&1 || missing+=("$p")
+done
+[[ ${#missing[@]} -eq 0 ]] && exit 0
+
+if [[ "$(id -u)" -eq 0 ]]; then
+  sudo=()
+elif sudo -n true 2>/dev/null; then
+  sudo=(sudo)
+elif [[ -t 0 ]] && command -v sudo >/dev/null 2>&1; then
+  echo "==> sudo jelszó kell az apt csomagokhoz: ${missing[*]}"
+  sudo=(sudo)
+else
+  echo "Figyelem: nincs sudo jog, ezeket telepítsd kézzel: ${missing[*]}" >&2
+  exit 0
+fi
+
+echo "==> apt: ${missing[*]}"
+"${sudo[@]}" apt-get update -qq
+DEBIAN_FRONTEND=noninteractive "${sudo[@]}" apt-get install -y -qq --no-install-recommends "${missing[@]}"
+{{ end -}}

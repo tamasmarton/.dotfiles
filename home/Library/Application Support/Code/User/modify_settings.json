@@ -25,6 +25,12 @@
 {{- $_ := set $settings "terminal.integrated.fontFamily" (printf "'%s'" $t.font) -}}
 {{- $_ := set $settings "terminal.integrated.fontSize" 14 -}}
 
+{{- /* Devcontainer: a VS Code automatikusan telepíti ezt a dotfiles-t minden konténerbe, és zsh lesz a terminál */ -}}
+{{- $_ := set $settings "dotfiles.repository" "tamasmarton/.dotfiles" -}}
+{{- $_ := set $settings "dotfiles.targetPath" "~/.dotfiles" -}}
+{{- $_ := set $settings "dotfiles.installCommand" "install.sh" -}}
+{{- $_ := set $settings "terminal.integrated.defaultProfile.linux" "zsh" -}}
+
 {{- /* Megjelenés */ -}}
 {{- $_ := set $settings "editor.semanticHighlighting.enabled" true -}}
 {{- $_ := set $settings "editor.bracketPairColorization.enabled" true -}}

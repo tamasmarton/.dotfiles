@@ -1,16 +1,22 @@
-# mise — globális runtime verziók (~/.config/mise/config.toml)
+# mise — globális runtime verziók és eszközök (~/.config/mise/config.toml)
 # Projektenként felülírható: `mise use node@20` → mise.toml a projektben.
 # Telepítés / frissítés: mise install  ·  mise upgrade  ·  mise ls
 
 [tools]
+{{- if .gui }}
+# ── Runtime-ok (Mac) ────────────────────────────────────────────────────
 node = "lts"
 pnpm = "latest"
 go = "latest"
 java = "temurin-25"            # LTS; projektenként: mise use java@temurin-21
 # rust = "stable"              # később
-{{- if .isContainer }}
+{{- else if .linuxHost }}
+# ── Runtime (Linux host) — a Neovim LSP-khez elég a Node ────────────────
+node = "lts"
+{{- end }}
+{{- if .isLinux }}
 
-# Konténerben nincs Homebrew, ezért a CLI eszközök is innen jönnek
+# ── CLI eszközök (Linuxon nincs Homebrew, ezért innen jönnek) ───────────
 starship = "latest"
 fzf = "latest"
 zoxide = "latest"
@@ -20,8 +26,24 @@ fd = "latest"
 ripgrep = "latest"
 delta = "latest"
 jq = "latest"
+yq = "latest"
 lazygit = "latest"
 neovim = "latest"
+"github:joshmedeski/sesh" = "latest"
+{{- /* Régebbi glibc (pl. Debian 12: 2.36): a legújabb tree-sitter és atuin binárisok 2.39-et kérnek */ -}}
+{{- $glibc := output "sh" "-c" "ldd --version 2>&1 | head -1 | grep -oE '[0-9]+\\.[0-9]+$' || true" | trim }}
+{{- if and $glibc (semverCompare "<2.39" $glibc) }}
+# glibc {{ $glibc }}: az utolsó tree-sitter, ami ezen fut (nvim-treesitterrel tesztelve); atuin helyett az fzf Ctrl-R
+tree-sitter = "0.25.10"
+{{- else }}
+tree-sitter = "latest"
+atuin = "latest"
+{{- end }}
+{{- end }}
+{{- if .linuxHost }}
+yazi = "latest"
+btop = "latest"
+lazydocker = "latest"
 {{- end }}
 
 [settings]

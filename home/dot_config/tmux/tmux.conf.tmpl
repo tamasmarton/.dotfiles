@@ -72,7 +72,13 @@ set -g status-justify left
 set -g status-style "bg={{ $t.bg_alt }},fg={{ $t.fg }}"
 
 set -g status-left-length 40
+{{- if .gui }}
 set -g status-left "#[fg={{ $t.accent }},bold] ● #S #[default] "
+{{- else }}
+# távoli gép: hostname + session, hogy beágyazott tmuxban (Mac → SSH → Debian) is látszódjon, hol vagy
+set -g status-left-length 60
+set -g status-left "#[fg={{ $t.bg }},bg={{ $t.ansi.cyan }},bold]  #h #[fg={{ $t.accent }},bg={{ $t.bg_alt }},bold] ● #S #[default] "
+{{- end }}
 
 set -g status-right-length 80
 set -g status-right "#{?client_prefix,#[fg={{ $t.bg }}#,bg={{ $t.ansi.yellow }}#,bold] PREFIX #[default] ,}#[fg={{ $t.muted }}]%H:%M "

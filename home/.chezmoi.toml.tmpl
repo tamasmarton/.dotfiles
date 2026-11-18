@@ -2,10 +2,16 @@
   Gép profil. `chezmoi init` egyszer kérdez, utána a ~/.config/chezmoi/chezmoi.toml-ban marad.
   Újrakérdezés: chezmoi init --data=false
 
+  Gép típusok (automatikusan felismerve):
+    Mac         → minden: GUI appok, Homebrew, runtime-ok (gui = true)
+    Linux host  → headless terminál config SSH-hoz: apt alapcsomagok, CLI eszközök mise-ből, zsh alap shell
+    konténer    → devcontainer / Codespaces: csak a terminál config, runtime-ot a projekt image adja
+
   Nem interaktív futásnál (devcontainer, CI) környezeti változókból jön:
     DOTFILES_PROFILE = personal | work   (alap: personal)
-    DOTFILES_NAME, DOTFILES_EMAIL
+    DOTFILES_NAME, DOTFILES_EMAIL, DOTFILES_PERSONAL_EMAIL
     DOTFILES_SIGN = true | false        (alap: false)
+    DOTFILES_CONTAINER = 1 | 0          (felülírja a konténer felismerést, pl. teszteléshez)
 */ -}}
 
 {{- $interactive := stdinIsATTY -}}
@@ -15,25 +21,39 @@
 {{- if or (env "REMOTE_CONTAINERS") (env "CODESPACES") (env "DEVCONTAINER") (stat "/.dockerenv") (stat "/run/.containerenv") -}}
 {{-   $isContainer = true -}}
 {{- end -}}
+{{- if env "DOTFILES_CONTAINER" -}}
+{{-   $isContainer = eq (env "DOTFILES_CONTAINER") "1" -}}
+{{- end -}}
+
+{{- $isMac := eq .chezmoi.os "darwin" -}}
+{{- $isLinux := eq .chezmoi.os "linux" -}}
+{{- $isDebian := false -}}
+{{- if and $isLinux (hasKey .chezmoi "osRelease") -}}
+{{-   $os := .chezmoi.osRelease -}}
+{{-   $isDebian = or (eq (get $os "id" | default "") "debian" "ubuntu") (contains "debian" (get $os "idLike" | default "")) -}}
+{{- end -}}
 
 {{- $profile := env "DOTFILES_PROFILE" | default "personal" -}}
 {{- $name := env "DOTFILES_NAME" | default "Tamas Marton" -}}
 {{- $email := env "DOTFILES_EMAIL" | default "" -}}
+{{- $personalEmail := env "DOTFILES_PERSONAL_EMAIL" | default "" -}}
 {{- $signCommits := eq (env "DOTFILES_SIGN" | default "false") "true" -}}
 
 {{- if $interactive -}}
 {{-   $profile = promptChoiceOnce . "profile" "Gép profil" (list "personal" "work") $profile -}}
 {{-   $name = promptStringOnce . "name" "Git név" $name -}}
 {{-   $email = promptStringOnce . "email" "Git email" $email -}}
+{{-   if eq $profile "work" -}}
+{{-     $personalEmail = promptStringOnce . "personalEmail" "Személyes git email a ~/Developer/personal alatti repókhoz (üres = nincs)" $personalEmail -}}
+{{-   end -}}
 {{-   $signCommits = promptBoolOnce . "signCommits" "Commitok aláírása SSH kulccsal (~/.ssh/id_ed25519.pub)" $signCommits -}}
 {{- else -}}
 {{-   $profile = get . "profile" | default $profile -}}
 {{-   $name = get . "name" | default $name -}}
 {{-   $email = get . "email" | default $email -}}
+{{-   $personalEmail = get . "personalEmail" | default $personalEmail -}}
 {{-   if hasKey . "signCommits" -}}{{ $signCommits = .signCommits }}{{- end -}}
 {{- end -}}
-
-{{- $isMac := eq .chezmoi.os "darwin" -}}
 
 # Generálta: home/.chezmoi.toml.tmpl — ne kézzel szerkeszd, hanem `chezmoi init`-tel.
 sourceDir = {{ .chezmoi.workingTree | quote }}
@@ -42,13 +62,18 @@ sourceDir = {{ .chezmoi.workingTree | quote }}
     profile = {{ $profile | quote }}
     name = {{ $name | quote }}
     email = {{ $email | quote }}
+    personalEmail = {{ $personalEmail | quote }}
     signCommits = {{ $signCommits }}
     isWork = {{ eq $profile "work" }}
     isPersonal = {{ eq $profile "personal" }}
-    isContainer = {{ $isContainer }}
     isMac = {{ $isMac }}
-    # GUI appok (WezTerm, fontok, casks) csak valódi Macen
+    isLinux = {{ $isLinux }}
+    isDebian = {{ $isDebian }}
+    isContainer = {{ $isContainer }}
+    # GUI appok (WezTerm, fontok, casks, VS Code) csak valódi Macen
     gui = {{ and $isMac (not $isContainer) }}
+    # Linux host (nem konténer): headless gép, SSH-n át használva
+    linuxHost = {{ and $isLinux (not $isContainer) }}
 
 [edit]
     command = "nvim"

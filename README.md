@@ -4,6 +4,8 @@
 
 macOS fejlesztői környezet [chezmoi](https://www.chezmoi.io/)-val, saját és céges gépre, valamint devcontainerbe.
 
+**Gépek:** Mac (személyes, céges) · headless Debian/Ubuntu (SSH) · devcontainer
+
 **Stack:** zsh + Starship · WezTerm (vagy Ghostty) + tmux · Neovim · VS Code (saját Glacier Night téma) · mise (Node, Go, Java) · Claude Code, herdr, oh-my-pi · glacier-night téma · JetBrainsMono Nerd Font
 
 ## Telepítés
@@ -28,16 +30,60 @@ Az `install.sh` feltelepíti a chezmoit, megkérdezi a gép profilját (`persona
 
 Egyetlen kézi lépés maradhat: a régi shell history importálása az atuinba (`atuin import auto`).
 
+### Debian / Ubuntu szerver (headless, SSH-n át)
+
+```sh
+sudo apt install -y git curl
+git clone https://github.com/tamasmarton/.dotfiles.git ~/Developer/.dotfiles
+~/Developer/.dotfiles/install.sh
+```
+
+Ugyanaz a terminál, mint a Macen, GUI nélkül:
+
+- **apt:** zsh, tmux, fordítóeszközök (a treesitter parserekhez). Ehhez egyszer sudo jelszót kér.
+- **mise:** starship, fzf, eza, bat, fd, ripgrep, delta, lazygit, Neovim, sesh, yazi, btop, lazydocker, plusz Node LTS (a Neovim LSP-khez).
+- **Claude Code CLI:** a hivatalos natív telepítővel (`~/.local/bin/claude`), ami magától frissül.
+- **zsh lesz az alap shell** (`chsh`).
+- **SSH kényelmi funkciók:**
+  - a Neovimben és a tmuxban másolt szöveg a Mac vágólapjára kerül (OSC 52);
+  - a tmux státuszsorban látszik a gép neve (beágyazott tmuxban `Ctrl-a Ctrl-a` a belső prefix);
+  - a Starship mutatja a `user@host`-ot;
+  - Ghostty-ból az SSH automatikusan rendezi a terminfo-t.
+- **Debian 12** (régebbi glibc): a tree-sitter 0.25.10-en marad, az atuin helyett az fzf adja a `Ctrl-R`-t. **Debian 13-on** minden a legfrissebb.
+
 ### Devcontainer
 
-VS Code `settings.json`:
+A VS Code beállításaiba ezt a chezmoi magától beírja, így minden devcontainerbe automatikusan települ:
 
 ```json
 "dotfiles.repository": "tamasmarton/.dotfiles",
-"dotfiles.installCommand": "install.sh"
+"dotfiles.targetPath": "~/.dotfiles",
+"dotfiles.installCommand": "install.sh",
+"terminal.integrated.defaultProfile.linux": "zsh"
 ```
 
-Konténerben nem kérdez, hanem környezeti változókból dolgozik (`DOTFILES_PROFILE`, `DOTFILES_NAME`, `DOTFILES_EMAIL`). A GUI-s részek (Homebrew casks, WezTerm) kimaradnak.
+**Működés konténerben:**
+- Nem kérdez, hanem környezeti változókból dolgozik: `DOTFILES_PROFILE`, `DOTFILES_NAME`, `DOTFILES_EMAIL`.
+- **Kimarad:** a GUI-s részek és a runtime-ok (Node/Go/Java), mert azokat a projekt image adja.
+- **Települ:** a terminál config, a CLI eszközök és a Claude Code CLI.
+
+### Céges profil
+
+- **Git email:** a fő email a céges. Ha az init során megadsz személyes emailt, a `~/Developer/personal/` alatti repók automatikusan azt kapják (`includeIf`).
+- **Céges CA tanúsítvány:** ha a cég TLS-t bontó proxyt használ, tedd ide: `~/.config/certs/corp-ca.pem`. A Node automatikusan használja; a git, curl és Java beállítása a [`work.zsh`](home/dot_config/zsh/work.zsh.tmpl)-ben van leírva.
+- **Proxy és titkok:** a `work.zsh`-ban (titkokat 1Passwordből, `onepasswordRead`).
+- **Céges csomagok:** a Brewfile `{{ if .isWork }}` blokkjába.
+
+### Tesztek
+
+- **CI:** minden pushnál lefut (GitHub Actions).
+- **Végponttól végpontig:** az `install.sh` friss Debian 12, Debian 13 és VS Code devcontainer konténerben fut le, utána ellenőrzi a zsh-t, az eszközöket, a tmuxot, a Neovim + treesitter működését és a Claude Code-ot.
+- **Helyben is futtatható:**
+
+```sh
+docker run --rm -v "$PWD":/src:ro debian:13 bash /src/test/e2e/linux-host.sh
+docker run --rm -v "$PWD":/src:ro mcr.microsoft.com/devcontainers/base:debian bash /src/test/e2e/devcontainer.sh
+```
 
 ## Napi használat
 
@@ -67,7 +113,8 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 ```
 .
 ├── install.sh                  belépési pont (új gép, devcontainer)
-├── .github/workflows/ci.yml    CI: minden profil renderelése és ellenőrzése, Neovim, témák
+├── .github/workflows/ci.yml    CI: minden profil renderelése és ellenőrzése, Neovim, témák, E2E
+├── test/e2e/                   végponttól végpontig tesztek (Debian host, devcontainer)
 ├── nvim/lazy-lock.json         Neovim plugin verziók (a lazy.nvim ide írja)
 ├── vscode/glacier-night/       saját VS Code téma csomag (build.sh → .vsix)
 ├── .chezmoiroot                → a chezmoi forrás a home/ mappa

@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: shellcheck (statikus scriptek)
-        run: shellcheck install.sh vscode/glacier-night/build.sh home/dot_local/bin/executable_brewfile
+        run: shellcheck install.sh vscode/glacier-night/build.sh home/dot_local/bin/executable_brewfile test/e2e/*.sh
 
   render:
     name: chezmoi · ${{ matrix.name }}
@@ -149,13 +149,12 @@ jobs:
       DEVCONTAINER: "1"
     steps:
       - uses: actions/checkout@v5
-      - name: Neovim + chezmoi + tree-sitter
+      - name: Neovim + chezmoi
         run: |
           curl -fsSL https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz | tar xz -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
           sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          npm install -g tree-sitter-cli
       - name: Config kirakása
         run: |
           T="$RUNNER_TEMP/home"; mkdir -p "$T"
@@ -185,3 +184,23 @@ jobs:
           vim.cmd(#errs == 0 and "qa!" or "cq!")
           EOF
           HOME="$T" XDG_CONFIG_HOME="$T/.config" nvim --headless -c "luafile $RUNNER_TEMP/check.lua"
+
+  e2e:
+    name: E2E · ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Debian 12 host, image: "debian:12", script: linux-host.sh }
+          - { name: Debian 13 host, image: "debian:13", script: linux-host.sh }
+          - { name: VS Code devcontainer, image: "mcr.microsoft.com/devcontainers/base:debian", script: devcontainer.sh }
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: install.sh egy friss konténerben, majd ellenőrzés (zsh, eszközök, tmux, Neovim + treesitter, Claude Code)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker run --rm -e GITHUB_TOKEN -e MISE_GITHUB_TOKEN="$GITHUB_TOKEN" \
+            -v "$GITHUB_WORKSPACE":/src:ro ${{ matrix.image }} bash /src/test/e2e/${{ matrix.script }}

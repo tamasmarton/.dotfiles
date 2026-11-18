@@ -1,7 +1,19 @@
 # Céges gép kiegészítései (csak work profilon kerül ki).
-# Titkot ide NE írj — 1Passwordből: {{ "{{" }} onepasswordRead "op://Vault/Item/field" {{ "}}" }}
+# Titkot ide NE írj — 1Passwordből olvasd egy chezmoi sablonban:
+#   export JIRA_TOKEN="{{ "{{" }} onepasswordRead "op://Work/Jira/token" {{ "}}" }}"
+# (a fájlt ehhez .tmpl-ként kell kezelni, és az `op` CLI-be be kell jelentkezni)
 
-# Példák:
-# export HTTPS_PROXY="http://proxy.ceg.local:8080"
-# export NODE_EXTRA_CA_CERTS="$HOME/.config/certs/ceg-ca.pem"
-# export JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=$HOME/.config/certs/ceg.jks"
+# ── Céges CA tanúsítvány (TLS-t bontó proxy mögött) ─────────────────────
+# Tedd ide a céges CA-t PEM formátumban: ~/.config/certs/corp-ca.pem
+# A Node hozzáadja a sajátjaihoz; a többi eszközhöz (git, curl, Java) lásd lent.
+if [[ -r "$XDG_CONFIG_HOME/certs/corp-ca.pem" ]]; then
+  export NODE_EXTRA_CA_CERTS="$XDG_CONFIG_HOME/certs/corp-ca.pem"
+fi
+# Ha a git / curl / Python is panaszkodik, egy összefűzött bundle kell (rendszer CA + céges CA):
+#   cat /etc/ssl/cert.pem ~/.config/certs/corp-ca.pem > ~/.config/certs/bundle.pem
+#   export SSL_CERT_FILE="$HOME/.config/certs/bundle.pem" GIT_SSL_CAINFO="$SSL_CERT_FILE" REQUESTS_CA_BUNDLE="$SSL_CERT_FILE"
+# Java (Gradle/Maven): keytool -importcert -alias corp -file ~/.config/certs/corp-ca.pem -keystore ~/.config/certs/corp.jks
+#   export JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=$HOME/.config/certs/corp.jks"
+
+# ── Proxy (ha kell) ─────────────────────────────────────────────────────
+# export HTTPS_PROXY="http://proxy.ceg.local:8080" HTTP_PROXY="$HTTPS_PROXY" NO_PROXY="localhost,127.0.0.1,.ceg.local"

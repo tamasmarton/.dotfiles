@@ -14,8 +14,13 @@ Library
 .config/zsh/work.zsh
 {{ end }}
 
+{{ if not (and .isWork .personalEmail) }}
+.config/git/personal
+{{ end }}
+
 # Gépspecifikus, nem verziózott fájlok — a chezmoi soha ne nyúljon hozzájuk
 .config/zsh/local.zsh
 .config/git/local
+.config/certs
 .config/wezterm/local.lua
 .config/tmux/local.conf

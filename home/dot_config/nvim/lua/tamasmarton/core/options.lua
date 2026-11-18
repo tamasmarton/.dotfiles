@@ -43,6 +43,16 @@ opt.inccommand = "split"        -- :s előnézet
 -- Szerkesztés
 opt.backspace = "indent,eol,start"
 opt.clipboard:append("unnamedplus")
+-- SSH-n (Debian gépek) a másolás OSC 52-vel a helyi (Mac) vágólapra megy; beillesztés a nvim regiszterből
+if vim.env.SSH_TTY then
+  local osc52 = require("vim.ui.clipboard.osc52")
+  local function paste() return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") } end
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+    paste = { ["+"] = paste, ["*"] = paste },
+  }
+end
 opt.splitright = true
 opt.splitbelow = true
 opt.mouse = "a"

@@ -1,0 +1,18 @@
+{{- if .linuxHost -}}
+#!/bin/bash
+# Linux hoston a zsh legyen az alapértelmezett shell (SSH bejelentkezéskor is).
+set -euo pipefail
+
+zsh_bin="$(command -v zsh || true)"
+[[ -z "$zsh_bin" ]] && { echo "zsh nincs telepítve, az alap shell marad"; exit 0; }
+
+current="$(getent passwd "$(id -un)" | cut -d: -f7)"
+[[ "$current" == "$zsh_bin" ]] && exit 0
+
+if [[ -t 0 ]]; then
+  echo "==> Alapértelmezett shell: $zsh_bin (a jelszavadat kéri)"
+  chsh -s "$zsh_bin" || echo "Figyelem: a chsh nem sikerült, kézzel: chsh -s $zsh_bin" >&2
+else
+  echo "Az alap shell beállításához futtasd: chsh -s $zsh_bin"
+fi
+{{ end -}}

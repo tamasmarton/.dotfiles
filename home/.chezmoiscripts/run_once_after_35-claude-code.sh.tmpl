@@ -1,0 +1,13 @@
+{{- if .isLinux -}}
+#!/bin/bash
+# Claude Code CLI Linuxon (Debian hostok, devcontainerek) — a hivatalos natív telepítővel (~/.local/bin/claude),
+# ami magától frissül. Macen a Brewfile `claude-code` caskja telepíti.
+set -euo pipefail
+
+if command -v claude >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/claude" ]]; then
+  exit 0
+fi
+
+echo "==> Claude Code CLI telepítése…"
+curl -fsSL https://claude.ai/install.sh | bash || echo "Figyelem: a Claude Code telepítése nem sikerült (kézzel: curl -fsSL https://claude.ai/install.sh | bash)" >&2
+{{ end -}}
