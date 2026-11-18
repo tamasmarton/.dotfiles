@@ -17,7 +17,10 @@ return {
     lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter").install(parsers)
+      -- CI-ban (GitHub Actions) nem fordít parsereket, ott csak a config betöltését ellenőrizzük
+      if not vim.env.CI then
+        require("nvim-treesitter").install(parsers)
+      end
 
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("tamasmarton_treesitter", { clear = true }),
