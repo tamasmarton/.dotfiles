@@ -1,0 +1,6 @@
+# Globális utasítások (minden projektre)
+
+> A chezmoi generálja a közös sablonból (`home/.chezmoitemplates/agent-instructions.md`) — ugyanez kerül a Claude Code `~/.claude/CLAUDE.md`-jébe is.
+> A rövid, kötelező szabályok a `RULES.md`-ben vannak (azokat a subagentek is megkapják).
+
+{{ template "agent-instructions.md" . }}

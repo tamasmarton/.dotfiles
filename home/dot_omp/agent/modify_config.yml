@@ -1,18 +1,102 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- /*
   oh-my-pi (omp) — ~/.omp/agent/config.yml
-  Az omp maga is írja (/settings, omp config set), ezért a chezmoi csak a témát állítja be,
-  a többi beállítást (modellek, szolgáltatók stb.) meghagyja.
+  Az omp maga is írja (/settings, omp config set), ezért a chezmoi csak a saját kulcsait állítja:
+  - mindig: theme.dark, bash.patterns (a parancs-engedélyezési szabályok a dotfiles-ból jönnek)
+  - csak ha még nincs: symbolPreset, tools.approvalMode, tools.approval.eval
+  Minden más (modellek, szolgáltatók, memória …) a gépen marad.
 */ -}}
 {{- $cfg := dict -}}
 {{- $current := get .chezmoi "stdin" | default "" -}}
 {{- if $current | trim -}}
 {{-   $cfg = $current | fromYaml -}}
 {{- end -}}
+
+{{- /* Téma */ -}}
 {{- $theme := get $cfg "theme" | default dict -}}
 {{- $_ := set $theme "dark" "glacier-night" -}}
 {{- $_ := set $cfg "theme" $theme -}}
 {{- if not (hasKey $cfg "symbolPreset") -}}
 {{-   $_ := set $cfg "symbolPreset" "nerd" -}}
 {{- end -}}
+
+{{- /* Engedélyezés: az omp alapból "yolo" (mindent kérdés nélkül futtat). Alapértelmezésünk: "write" —
+       olvasás és fájlszerkesztés megy, parancsfuttatás kérdez, kivéve amit a bash.patterns engedélyez. */ -}}
+{{- $tools := get $cfg "tools" | default dict -}}
+{{- if not (hasKey $tools "approvalMode") -}}
+{{-   $_ := set $tools "approvalMode" "write" -}}
+{{- end -}}
+{{- $approval := get $tools "approval" | default dict -}}
+{{- if not (hasKey $approval "eval") -}}
+{{-   $_ := set $approval "eval" "prompt" -}}   {{- /* az eval-on át indított shell ne kerülje meg a bash szabályokat */ -}}
+{{- end -}}
+{{- $_ := set $tools "approval" $approval -}}
+{{- $_ := set $cfg "tools" $tools -}}
+
+{{- /* Bash szabályok: az első illeszkedő nyer → tiltás, kérdezés, majd az engedélyezett parancsok.
+       Projektenként a <repo>/.omp/config.yml-ben szigorítható (lazítani nem lehet). */ -}}
+{{- $rules := `
+- { match: "rm -rf /", approval: deny }
+- { match: "rm -rf /*", approval: deny }
+- { match: "rm -rf ~", approval: deny }
+- { match: "rm -rf ~/*", approval: deny }
+- { match: "sudo *", approval: prompt }
+- { match: "git push*", approval: prompt }
+- { match: "git reset --hard*", approval: prompt }
+- { match: "git clean*", approval: prompt }
+- { match: "git checkout -- *", approval: prompt }
+- { match: "rm -rf *", approval: prompt }
+- { match: "chezmoi apply*", approval: prompt }
+- { match: "docker system prune*", approval: prompt }
+- { match: "docker volume rm*", approval: prompt }
+- { match: "git status*", approval: allow }
+- { match: "git diff*", approval: allow }
+- { match: "git log*", approval: allow }
+- { match: "git show*", approval: allow }
+- { match: "git branch", approval: allow }
+- { match: "git branch -a*", approval: allow }
+- { match: "git branch --list*", approval: allow }
+- { match: "git remote -v", approval: allow }
+- { match: "git rev-parse*", approval: allow }
+- { match: "git blame*", approval: allow }
+- { match: "git stash list*", approval: allow }
+- { match: "pwd", approval: allow }
+- { match: "ls", approval: allow }
+- { match: "ls *", approval: allow }
+- { match: "eza*", approval: allow }
+- { match: "tree*", approval: allow }
+- { match: "which *", approval: allow }
+- { match: "wc *", approval: allow }
+- { match: "rg *", approval: allow }
+- { match: "fd *", approval: allow }
+- { match: "jq *", approval: allow }
+- { match: "go test*", approval: allow }
+- { match: "go vet*", approval: allow }
+- { match: "go build*", approval: allow }
+- { match: "golangci-lint run*", approval: allow }
+- { match: "pnpm test*", approval: allow }
+- { match: "pnpm lint*", approval: allow }
+- { match: "pnpm typecheck*", approval: allow }
+- { match: "pnpm run test*", approval: allow }
+- { match: "pnpm run lint*", approval: allow }
+- { match: "pnpm run typecheck*", approval: allow }
+- { match: "pnpm run build*", approval: allow }
+- { match: "npm test*", approval: allow }
+- { match: "npm run test*", approval: allow }
+- { match: "npm run lint*", approval: allow }
+- { match: "npx tsc --noEmit*", approval: allow }
+- { match: "npx biome check*", approval: allow }
+- { match: "./gradlew test*", approval: allow }
+- { match: "./gradlew build*", approval: allow }
+- { match: "./mvnw test*", approval: allow }
+- { match: "./mvnw verify*", approval: allow }
+- { match: "make test*", approval: allow }
+- { match: "mise ls*", approval: allow }
+- { match: "chezmoi diff*", approval: allow }
+- { match: "chezmoi managed*", approval: allow }
+` | fromYaml -}}
+{{- $bash := get $cfg "bash" | default dict -}}
+{{- $_ := set $bash "patterns" $rules -}}
+{{- $_ := set $cfg "bash" $bash -}}
+
 {{- $cfg | toYaml -}}

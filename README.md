@@ -165,9 +165,16 @@ Minden szín a [`.chezmoidata/theme.toml`](home/.chezmoidata/theme.toml) palett�
 ### AI agentek: Claude Code, herdr, oh-my-pi
 
 - **Claude Code:** a chezmoi a `~/.claude/settings.json`-ba csak a glacier-night státuszsort írja, plusz a `theme`, `sandbox` és értesítés alapértékeket, ha még nincsenek. Az `env` (tokenek), `permissions`, `hooks` és `mcpServers` gépenként maradnak, és **soha nem kerülnek a repóba**.
-- **Globális utasítások:** a [`CLAUDE.md`](home/dot_claude/CLAUDE.md) (nyelv, stack, a dotfiles működése).
+- **Globális utasítások:** egy közös sablonból ([`agent-instructions.md`](home/.chezmoitemplates/agent-instructions.md)) generálódik a Claude Code `~/.claude/CLAUDE.md`-je és az oh-my-pi `~/.omp/agent/AGENTS.md`-je. Tartalma: nyelv, stack, a dotfiles működése; a gép típusa szerint (Mac / Debian host / devcontainer) és céges profilon kiegészül.
 - **herdr:** agent multiplexer, több Claude / omp session egy helyen. Glacier-night téma. A sidebarban látszik, melyik agent dolgozik, vár inputra vagy végzett.
 - **oh-my-pi (`omp`):** coding agent TUI, saját glacier-night témával és Nerd Font ikonokkal.
+  - **Engedélyezés:** az omp alapból `yolo` módban mindent kérdés nélkül futtat, nálunk az alap a `write`. A fájlszerkesztés megy, a parancsok kérdeznek, kivéve amit a szabálylista enged:
+    - **kérdés nélkül:** olvasó és teszt parancsok (`git status/diff/log`, `rg`, `go test`, `pnpm test/lint`, `./gradlew test` …);
+    - **mindig kérdez:** `sudo`, `git push`, `git reset --hard`, `rm -rf`, `chezmoi apply`;
+    - **tilos:** `rm -rf /` és `rm -rf ~`.
+  - **Projektenként:** a `.omp/config.yml`-ben szigorítható, lazítani nem lehet.
+  - **`RULES.md`:** a legfontosabb szabályok röviden; ezt az omp subagentjei is megkapják.
+  - **Billentyűk:** a `Ctrl+L` újrarajzolja a képernyőt, nem az élő hangmódot indítja.
 - A herdr, omp és Claude configot az alkalmazások maguk is írják, ezért a chezmoi ezeket nem írja felül, csak a saját kulcsait állítja be bennük (`modify_` sablonok).
 
 ### Opcionális appok

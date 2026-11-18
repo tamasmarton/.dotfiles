@@ -1,0 +1,21 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+  oh-my-pi billentyűk — ~/.omp/agent/keybindings.yml
+  Csak azt írjuk át, ami ütközik a mi környezetünkkel; a többi az omp alapértelmezése marad
+  (és amit a gépen átírsz, megmarad).
+
+  Hasznos alapértelmezések: Ctrl+P / Alt+M modellváltás · Alt+Shift+P plan mód · Shift+Tab gondolkodási szint ·
+  Ctrl+R prompt history · Ctrl+O eszköz kimenet kibontása · Ctrl+G szerkesztés nvimben · Alt+A agent hub.
+*/ -}}
+{{- $keys := dict -}}
+{{- $current := get .chezmoi "stdin" | default "" -}}
+{{- if $current | trim -}}
+{{-   $keys = $current | fromYaml -}}
+{{- end -}}
+
+{{- /* Ctrl+L: a terminálban megszokott "képernyő újrarajzolás" legyen, ne az élő hangmód indítása
+       (tmuxban a vim-tmux-navigator amúgy is elkapja). Az élő hangmód marad a /live paranccsal. */ -}}
+{{- $_ := set $keys "app.live.toggle" (list) -}}
+{{- $_ := set $keys "app.display.reset" (list "Alt+L" "Ctrl+L") -}}
+
+{{- $keys | toYaml -}}

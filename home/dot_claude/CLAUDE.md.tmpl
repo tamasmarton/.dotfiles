@@ -1,0 +1,6 @@
+# Globális utasítások (minden projektre)
+
+> A chezmoi generálja a közös sablonból (`home/.chezmoitemplates/agent-instructions.md`) — ugyanez kerül az oh-my-pi `~/.omp/agent/AGENTS.md`-jébe is.
+> Szerkesztés: a sablont módosítsd a repóban, majd `chezmoi apply`. Az itt végzett közvetlen módosítást a következő apply felülírja.
+
+{{ template "agent-instructions.md" . }}
