@@ -7,7 +7,8 @@
 #   brewfile cleanup     mi van telepítve, ami NINCS a Brewfile-ban (csak lista)
 #   brewfile cleanup -f  ...és ezek eltávolítása (megerősítést kér)
 #   brewfile list        a Brewfile tartalma
-#   brewfile edit        Brewfile szerkesztése a chezmoi forrásban, majd apply
+#   brewfile edit        terminálos formulák (Brewfile.tmpl) szerkesztése a chezmoi forrásban, majd apply
+#   brewfile edit gui    a profil GUI-s listája (cask-ok: brewfile-<profil>.rb) szerkesztése, majd apply
 set -euo pipefail
 
 BREWFILE="${BREWFILE:-${XDG_CONFIG_HOME:-$HOME/.config}/homebrew/Brewfile}"
@@ -53,10 +54,18 @@ case "$cmd" in
     brew bundle list --file="$BREWFILE" --all
     ;;
   edit)
-    chezmoi edit --apply "$BREWFILE"
+    if [[ "${1:-}" == "gui" ]]; then
+      profile="$(chezmoi data --format=json | jq -r .profile)"
+      file="$(chezmoi source-path)/.chezmoitemplates/brewfile-$profile.rb"
+      [[ -f "$file" ]] || { echo "brewfile: nincs GUI-s lista a(z) '$profile' profilhoz: $file" >&2; exit 1; }
+      "${EDITOR:-nvim}" "$file"
+      chezmoi apply
+    else
+      chezmoi edit --apply "$BREWFILE"
+    fi
     ;;
   -h|--help|help)
-    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
     ;;
   *)
     echo "brewfile: ismeretlen parancs: $cmd (lásd: brewfile help)" >&2

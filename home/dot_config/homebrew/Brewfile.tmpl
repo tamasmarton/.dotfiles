@@ -5,12 +5,12 @@
 # Változás után a `chezmoi apply` automatikusan lefuttatja a `brewfile install`-t.
 #
 # Runtime-ok (node, go, java, rust) NEM innen jönnek, hanem a mise-ből.
+#
+# Szerkezet: ez a fájl a terminálos formulákat tartalmazza (minden gépen ugyanaz); a GUI-s rész
+# (casks, taps, VS Code bővítmények) profilonként külön fájlban van: brewfile-personal.rb, brewfile-work.rb.
 
 # ── Tapek ───────────────────────────────────────────────────────────────
 tap "can1357/tap"               # oh-my-pi (omp)
-{{- if .gui }}
-tap "nikitabobko/tap"           # AeroSpace
-{{- end }}
 
 # ── Alap ────────────────────────────────────────────────────────────────
 brew "git"
@@ -40,9 +40,6 @@ brew "tmux"
 brew "sesh"                     # tmux session-ök zoxide alapján
 brew "yazi"                     # fájlkezelő
 brew "lazygit"
-{{- if .gui }}
-brew "lazydocker"
-{{- end }}
 brew "git-delta"                # diff pager
 
 # ── AI agent TUI-k ──────────────────────────────────────────────────────
@@ -55,32 +52,8 @@ brew "tree-sitter-cli"
 
 {{- if .gui }}
 
-# ── Terminál és font ────────────────────────────────────────────────────
-cask "wezterm@nightly"
-cask "font-jetbrains-mono-nerd-font"
-cask "ghostty"                  # alternatív terminál (a config a WezTerm palettáját használja)
-
-# ── Közös appok ─────────────────────────────────────────────────────────
-cask "visual-studio-code"
-vscode "pkief.material-icon-theme"   # fájlikonok (a Borealis csomagot a chezmoi telepíti)
-cask "docker-desktop"
-cask "claude-code"
-cask "1password-cli"            # titkok a chezmoi sablonokba (op read)
-cask "stats"                    # menüsoros rendszerfigyelő
-cask "raycast"                  # Spotlight helyett: launcher, ablakkezelés, vágólap
-cask "nikitabobko/tap/aerospace" # tiling ablakkezelő (opcionális, alapból nem indul el)
-{{- if .isPersonal }}
-
-# ── Személyes ───────────────────────────────────────────────────────────
-cask "brave-browser"
-cask "spotify"
-cask "vlc"
-cask "itsycal"
-cask "hiddenbar"
-{{- end }}
-{{- if .isWork }}
-
-# ── Céges ───────────────────────────────────────────────────────────────
-# Ide jönnek a céges gép extra csomagjai.
-{{- end }}
+# ══ GUI-s rész: profilonként külön, teljesen önálló lista ══════════════════
+# Profil: {{ .profile }} → home/.chezmoitemplates/brewfile-{{ .profile }}.rb
+# (új GUI-s profilhoz ugyanilyen nevű fájl kell)
+{{ includeTemplate (printf "brewfile-%s.rb" .profile) . | trim }}
 {{- end }}

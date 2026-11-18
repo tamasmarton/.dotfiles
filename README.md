@@ -79,7 +79,7 @@ A VS Code beállításaiba ezt a chezmoi magától beírja, így minden devconta
 - **Git email:** a fő email a céges. Ha megadsz személyes emailt (env fájl vagy init kérdés), a `personalGitDir` (alapból `~/Developer/personal/`, [`profiles/work.toml`](profiles/work.toml)) alatti repók automatikusan azt kapják (`includeIf`).
 - **Céges CA tanúsítvány:** ha a cég TLS-t bontó proxyt használ, tedd ide: `~/.config/certs/corp-ca.pem`. A Node automatikusan használja; a git, curl és Java beállítása a [`work.zsh`](home/dot_config/zsh/work.zsh.tmpl)-ben van leírva.
 - **Proxy és titkok:** a `work.zsh`-ban (titkokat 1Passwordből, `onepasswordRead`).
-- **Céges csomagok:** a Brewfile `{{ if .isWork }}` blokkjába.
+- **Céges csomagok:** a [`brewfile-work.rb`](home/.chezmoitemplates/brewfile-work.rb) "Céges" blokkjába (`brewfile edit gui`).
 
 ### Tesztek
 
@@ -104,10 +104,17 @@ docker run --rm -v "$PWD":/src:ro mcr.microsoft.com/devcontainers/base:debian ba
 
 ### Homebrew csomagok
 
-A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homebrew/Brewfile.tmpl) fájlban van, két részre bontva:
+A csomaglista három fájlban van:
 
-- **terminálos rész (minden Macen):** formulák (git, mise, starship, tmux, neovim, lazygit, herdr, omp …) és az `omp` tap. Ez a `server` profil teljes Brewfile-ja.
-- **GUI-s rész (csak `gui = true` profilon):** a terminálok és a font (WezTerm, Ghostty), VS Code és ikonok, Docker Desktop, Claude Code, Raycast, AeroSpace (+ tap), `lazydocker`, valamint a profil szerinti blokkok (személyes vagy céges appok). Ha változik, a `chezmoi apply` magától telepíti az új csomagokat.
+| Fájl | Tartalma |
+|---|---|
+| [`Brewfile.tmpl`](home/dot_config/homebrew/Brewfile.tmpl) | a **terminálos rész**, minden Macen ugyanaz: formulák (git, mise, starship, tmux, neovim, lazygit, herdr, omp …) és az `omp` tap. Ez a `server` profil teljes Brewfile-ja |
+| [`brewfile-personal.rb`](home/.chezmoitemplates/brewfile-personal.rb) | a **személyes gép GUI-s listája**: casks, taps, VS Code bővítmények, `lazydocker` (WezTerm, Ghostty, font, VS Code, Docker Desktop, Raycast, AeroSpace, Brave, Spotify, VLC …) |
+| [`brewfile-work.rb`](home/.chezmoitemplates/brewfile-work.rb) | a **céges gép GUI-s listája**, a személyestől teljesen függetlenül. Alul a "Céges" blokkba jönnek a céges extra appok |
+
+A két GUI-s lista **nem osztozik semmin**: egyik módosítása a másikat nem érinti, az átfedő sorok szándékosan mindkettőben benne vannak. A `gui = false` profilokon (`server`) egyik sem kerül be. Új GUI-s profilhoz (`gui = true`) kell egy `brewfile-<profilnév>.rb` is, különben a render hibát ad.
+
+Szerkesztés: `brewfile edit` a terminálos részt nyitja, `brewfile edit gui` az aktuális profil GUI-s listáját; mentés után a `chezmoi apply` lefut, és ha változott a lista, a `brew bundle` telepíti az újat.
 
 | Parancs | Mit csinál |
 |---|---|
@@ -116,7 +123,7 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
 | `brewfile check` | telepítve van-e minden |
 | `brewfile cleanup` | ami telepítve van, de nincs a Brewfile-ban (csak lista) |
 | `brewfile cleanup -f` | …és ezek eltávolítása, megerősítéssel |
-| `brewfile edit` | Brewfile szerkesztése, majd apply |
+| `brewfile edit` / `brewfile edit gui` | terminálos rész / a profil GUI-s listájának szerkesztése, majd apply |
 
 ## Felépítés
 
@@ -155,7 +162,7 @@ A csomaglista a [`home/dot_config/homebrew/Brewfile.tmpl`](home/dot_config/homeb
     │   ├── aerospace/          tiling ablakkezelő (opcionális)
     │   ├── nvim/               Neovim (josean-struktúra, modern pluginok)
     │   ├── bat/ eza/ lazygit/ btop/   a palettából színezve
-    │   └── homebrew/           Brewfile
+    │   └── homebrew/           Brewfile (terminálos rész; a GUI-s lista profilonként: .chezmoitemplates/brewfile-*.rb)
     └── dot_local/bin/          saját parancsok (brewfile)
 ```
 
