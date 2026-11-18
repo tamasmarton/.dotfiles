@@ -162,7 +162,7 @@ Minden szín egy **palettából** jön. A paletták a [`themes/`](themes/) mapp�
 
 | Paletta | VS Code neve | Jellemző |
 |---|---|---|
-| `darker` | Borealis · Darker | az **eredeti**: nagyon sötét, kontrasztos (≈ 14,6:1). A `77d6c1a` commitban készült, a színei azonosak, ne írd át |
+| `darker` | Borealis · Darker | az **eredeti**: nagyon sötét, kontrasztos (≈ 14,6:1). A `05e6aa8` commitban készült, a színei azonosak, ne írd át |
 | `nightfrost` | Borealis · Nightfrost | kékesfekete, kicsit visszafogottabb (≈ 10,5:1) |
 | `bluehour` | Borealis · Bluehour | a VS Code Dark 2026 felépítése (semleges sötét szerkesztő, világosabb panelek, visszafogott kék accent), Tokyo Night-szerű kódszínekkel (≈ 9,5:1) |
 

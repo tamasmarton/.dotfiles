@@ -1,5 +1,5 @@
 # darker — az ORIGINÁL, nagyon sötét és kontrasztos paletta (alap ≈ 14,6:1). Ne írd át: ez a megtartandó alap.
-# Eredete: 77d6c1a ("v2 phase 4.5: Glacier Night VS Code theme"); a színek ott és itt azonosak.
+# Eredete: 05e6aa8 ("v2 phase 4.5: Glacier Night VS Code theme"); a színek ott és itt azonosak.
 # Aktiválás: ./theme use darker
 # Ebből generálódik minden eszköz színe (WezTerm, Ghostty, tmux, Starship, Neovim, VS Code, omp …).
 # Sablonban: {{ .theme.accent }}, {{ .theme.ansi.red }} stb.
