@@ -130,7 +130,7 @@ jobs:
           if [ "$DOTFILES_PROFILE" = "server" ]; then
             # szerver profil: csak terminálos formulák
             if grep -E '^(cask|vscode|mas) ' "$F"; then echo "a szerver Brewfile-ban nem lehet cask / vscode"; exit 1; fi
-            for p in .config/wezterm .config/ghostty Library; do
+            for p in .config/wezterm .config/ghostty ".config/aerospace" "Library/Application Support/Code"; do
               if [ -e "$RUNNER_TEMP/home/$p" ]; then echo "a szerver profilon nem lehet: $p"; exit 1; fi
             done
           fi
